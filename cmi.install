@@ -25,7 +25,6 @@ function cmi_schema() {
       'csid'      => array('csid'),
     ),
   );
-
   $schema['cmi_interactions'] = array(
     'fields' => array(
       'ciid'              => array('type' => 'int', 'not null' => TRUE),
@@ -41,7 +40,6 @@ function cmi_schema() {
     ),
     'primary key' => array('ciid'),
   );
-
   $schema['cmi_interactions_correct_responses'] = array(
     'fields' => array(
       'cirid'     => array('type' => 'int', 'not null' => TRUE),
@@ -50,7 +48,6 @@ function cmi_schema() {
     ),
     'primary key' => array('cirid'),
   );
-
   $schema['cmi_interactions_objectives'] = array(
     'fields' => array(
       'ciid'  => array('type' => 'int', 'not null' => TRUE),
@@ -58,7 +55,6 @@ function cmi_schema() {
     ),
     'primary key' => array('ciid'),
   );
-
   $schema['cmi_learner'] = array(
     'fields' => array(
       'uid'               => array('type' => 'int', 'not null' => TRUE),
@@ -71,7 +67,6 @@ function cmi_schema() {
     ),
     'primary key' => array('uid'),
   );
-
   $schema['cmi_learner_attempt'] = array(
     'fields' => array(
       'claid'             => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
@@ -86,7 +81,6 @@ function cmi_schema() {
     ),
     'primary key' => array('claid'),
   );
-
   $schema['cmi_learner_session'] = array(
     'fields' => array(
       'clsid'         => array('type' => 'serial', 'not null' => TRUE),
@@ -98,7 +92,6 @@ function cmi_schema() {
     ),
     'primary key' => array('clsid'),
   );
-
   $schema['cmi_objectives'] = array(
     'fields' => array(
       'coid'              => array('type' => 'int', 'not null' => TRUE),
@@ -111,7 +104,6 @@ function cmi_schema() {
     ),
     'primary key' => array('coid'),
   );
-
   $schema['cmi_objectives_score'] = array(
     'fields' => array(
       'coid'    => array('type' => 'int', 'not null' => TRUE),
@@ -122,7 +114,6 @@ function cmi_schema() {
     ),
     'primary key' => array('coid'),
   );
-
   $schema['cmi_sco'] = array(
     'fields' => array(
       'csid'                  => array('type' => 'serial', 'not null' => TRUE),
@@ -135,7 +126,6 @@ function cmi_schema() {
     ),
     'primary key' => array('csid'),
   );
-
   $schema['cmi_score'] = array(
     'fields' => array(
       'cscid'   => array('type' => 'serial', 'not null' => TRUE),
@@ -147,7 +137,6 @@ function cmi_schema() {
     ),
     'primary key' => array('cscid'),
   );
-
   return $schema;
 }
 
@@ -161,7 +150,7 @@ function cmi_install() {
 /**
  * Implementation of hook_uninstall().
  */
- function cmi_uninstall() {
+function cmi_uninstall() {
   drupal_uninstall_schema('cmi');
 
   $node_types = node_get_types();
