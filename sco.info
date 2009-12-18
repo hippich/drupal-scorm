@@ -1,0 +1,6 @@
+; $Id$
+name = SCO
+description = The SCORM - Sharable Content Object
+package = "LMS"
+dependencies[] = upload
+core = 6.x

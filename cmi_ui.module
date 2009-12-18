@@ -1,0 +1,143 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * SCORM 2004 Datamodel (CMI) - User interface
+ *
+ * @author
+ * Stefan Auditor <stefan.auditor@erdfisch.de>
+ *
+ * @TODO add a nice js slider to the fields audio_level and delivery_speed,
+ *       e.g. http://docs.jquery.com/UI/Slider  if (!$scorm_is_object = variable_get('scorm_is_object_' . $node->type, FALSE)) {
+    return;
+  }
+ */
+ 
+ /*
+ * @file
+ *
+ * This module provides a form for and updates user preferences and other data such as audio_level, language,
+ * delivery_speed, audio_captioning, mode, credit.
+ */
+
+/**
+ * Implementation of hook_perm().
+ */
+function cmi_ui_perm() {
+  return array('change mode', 'change credit');
+}
+
+/**
+ * Implementation of hook_user().
+ */
+function cmi_ui_user($op, &$edit, &$account, $category = NULL) {
+  switch ($op) {
+    case 'update':
+      $result = db_result(db_query("SELECT COUNT(uid) FROM {cmi_learner} WHERE uid = %d", $account->uid));
+      if ($result) {
+        $edit['cmi']['mode'] = $edit['cmi']['mode'] ? $edit['cmi']['mode'] : $account->cmi['mode'];
+        $edit['cmi']['credit'] = $edit['cmi']['credit'] ? $edit['cmi']['credit'] : $account->cmi['credit'];
+        $query = "UPDATE {cmi_learner} SET audio_level='%s', language='%s', delivery_speed='%s', audio_captioning='%s', mode='%s', credit='%s' WHERE uid = %d";
+        db_query($query, $edit['cmi']['audio_level'], $edit['cmi']['language'], $edit['cmi']['delivery_speed'], $edit['cmi']['audio_captioning'], $edit['cmi']['mode'], $edit['cmi']['credit'], $account->uid);
+      }
+      else {
+        $edit['cmi']['mode'] = $edit['cmi']['mode'] ? $edit['cmi']['mode'] : $account->cmi['mode'];
+        $edit['cmi']['credit'] = $edit['cmi']['credit'] ? $edit['cmi']['credit'] : $account->cmi['credit'];
+        $query = "INSERT INTO {cmi_learner} (uid, audio_level, language, delivery_speed, audio_captioning, mode, credit) VALUES (%d, %f, '%s', %f, %d, '%s', '%s')";
+        db_query($query, $account->uid, $edit['cmi']['audio_level'], $edit['cmi']['language'], $edit['cmi']['delivery_speed'], $edit['cmi']['audio_captioning'], $edit['cmi']['mode'], $edit['cmi']['credit'], $account->uid);
+      }
+      unset($edit['cmi']);
+      break;
+    case 'load':
+      $query = "SELECT audio_level, language, delivery_speed, audio_captioning, mode, credit FROM {cmi_learner} WHERE uid=%d";
+      $account->cmi = db_fetch_array(db_query($query, $account->uid));
+      break;
+    case 'delete':
+      $query = "DELETE FROM {cmi_learner} WHERE uid=%d";
+      db_fetch_array(db_query($query, $account->uid));
+      break;
+    case 'form':
+      if ($category == 'account') {
+        return cmi_learner_form($account);
+      }
+      break;
+  }
+}
+
+/**
+ * Learner settings form
+ */
+function cmi_learner_form($account) {
+  $form['cmi'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Presentation settings'),
+    '#collapsible' => TRUE,
+    '#weight' => 4,
+    '#tree' => TRUE,
+  );
+    if (user_access('change mode')) {
+    $form['cmi']['mode'] = array(
+      '#type' => 'select',
+      '#title' => t('Mode'),
+      '#default_value' => $account->cmi['mode'] ? $account->cmi['mode'] : 'normal',
+      '#options' => array(
+        'browse' => t('browse'), 'normal' => t('normal'), 'review' => t('review'),
+      ),
+      '#description' => t('Some SCOs can present different amounts of information, present information in different sequences, present information reflecting different training strategies or store different sets of data based on the mode that the SCO is currently in.'),
+    );
+  }
+    if (user_access('change credit')) {
+    $form['cmi']['credit'] = array(
+      '#type' => 'select',
+      '#title' => t('Credit'),
+      '#default_value' => $account->cmi['credit'] ? $account->cmi['credit'] : 'credit',
+      '#options' => array(
+        'credit' => t('credit'), 'no-credit' => t('no credit'),
+      ),
+      '#description' => t('Choose whether all SCOs shall be taken for credit or not.'),
+    );
+  }
+  //TODO: Add a nice js slider
+  $form['cmi']['audio_level'] = array(
+    '#type' => 'select',
+    '#title' => t('Audio level'),
+    '#default_value' => $account->cmi['audio_level'] ? sprintf("%01.1f", $account->cmi['audio_level']) : 1.0,
+    '#options' => array(
+      '0.0' => '0', '0.2' => '0.2', '0.4' => '0.4', '0.6' => '0.6', '0.8' => '0.8',
+      '1.0' => '1', '1.2' => '1.2', '1.4' => '1.4', '1.6' => '1.6', '1.8' => '1.8',
+      '2.0' => '2', '2.2' => '2.2', '2.4' => '2.4', '2.6' => '2.6', '2.8' => '2.8',
+      '3.0' => '3',
+    ),
+    '#description' => t('A multiplier value that specifies an intended change in perceived audio level relative to an implementation-specific reference level with 1 meaning <em>no change</em>.'),
+  );
+  $form['cmi']['language'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Language'),
+    '#default_value' => $account->cmi['language'] ? $account->cmi['language'] : '',
+    '#description' => t('The preferred language for SCOs with multilingual capability, e.g. <em>fr-CA</em>'),
+  );
+  //TODO: Add a nice js slider
+  $form['cmi']['delivery_speed'] = array(
+    '#type' => 'select',
+    '#title' => t('Delivery speed'),
+    '#default_value' => $account->cmi['delivery_speed'] ? sprintf("%01.1f", $account->cmi['delivery_speed']) : 1.0,
+    '#options' => array(
+      '0' => '0', '0.2' => '0.2', '0.4' => '0.4', '0.6' => '0.6', '0.8' => '0.8',
+      '1' => '1', '1.2' => '1.2', '1.4' => '1.4', '1.6' => '1.6', '1.8' => '1.8',
+      '2' => '2', '2.2' => '2.2', '2.4' => '2.4', '2.6' => '2.6', '2.8' => '2.8',
+      '3' => '3',
+    ),
+    '#description' => t('A multiplier value that specifies an intended change in perceived audio level relative to an implementation-specific reference level with 1 meaning <em>no change</em>.'),
+  );
+  $form['cmi']['audio_captioning'] = array(
+    '#type' => 'select',
+    '#title' => t('Audio captioning'),
+    '#default_value' => $account->cmi['audio_captioning'] ? $account->cmi['audio_captioning'] : 0,
+    '#options' => array(
+      '-1' => t('off'), '0'  => t('no change'), '1'  => t('on'),
+    ),
+    '#description' => t('Specifies whether captioning text corresponding to audio is displayed.'),
+  );
+  return $form;
+}

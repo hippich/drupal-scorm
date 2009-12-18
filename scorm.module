@@ -1,0 +1,45 @@
+<?php
+// $Id$
+
+/**
+ * SCORM 2004
+ *
+ * @author
+ * Stefan Auditor <stefan.auditor@erdfisch.de>
+ */
+
+define("SCORM_MINIMUM_PHP", 5);
+
+/**
+ * Implementation of hook_requirements().
+ */
+function scorm_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  // Test PHP version
+  $requirements['php'] = array(
+    'title' => $t('PHP'),
+    'value' => ($phase == 'runtime') ? l(phpversion(), 'admin/reports/status/php') : phpversion(),
+  );
+  if (version_compare(phpversion(), SCORM_MINIMUM_PHP) < 0) {
+    $requirements['php']['description'] = $t('Your PHP installation is too old. The SCORM for Drupal module requires at least PHP %version.', array('%version' => SCORM_MINIMUM_PHP));
+    $requirements['php']['severity'] = REQUIREMENT_ERROR;
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function scorm_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+    case 'load':
+      if ($scorm_is_object = variable_get('scorm_is_object_' . $node->type, FALSE)) {
+        $node->scorm['is_object'] = TRUE;
+      }
+      break;
+  }
+}

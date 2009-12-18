@@ -1,0 +1,38 @@
+<?php
+// $Id$
+
+/**
+ * SCORM 2004 - User interface
+ *
+ * @author
+ * Stefan Auditor >stefan.auditor@erdfisch.de>
+ */
+
+/**
+ * Implementation of hook_form_alter()
+ */
+function scorm_ui_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'node_type_form') {
+    $form['scorm']['scorm_ui'] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#title' => t('SCORM'),
+    );
+    $form['scorm']['scorm_ui']['scorm_is_object'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Treat this content type as SCORM object'),
+      '#default_value' => variable_get('scorm_is_object_' . $form['#node_type']->type, FALSE),
+    );
+    $form['scorm']['scorm_ui']['scorm_view_mode'] = array(
+      '#type' => 'radios',
+      '#title' => t('View mode'),
+      '#default_value' => variable_get('flowplayer_simple_show_' . $form['#node_type']->type, 0),
+      '#options' => array(
+        0 => t('Do not show SCORM object'),
+        //1 => t('Show SCORM object on teaser view only'),
+        2 => t('Show SCORM object on full node view'),
+        //3 => t('Show SCORM object on full node and teaser view'),
+      ),
+    );
+  }
+}

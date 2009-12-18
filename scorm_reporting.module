@@ -1,0 +1,105 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * SCORM 2004 - Reporting
+ *
+ * This module creates a Reporting section for each user.
+ *
+ * @author
+ * Stefan Auditor <stefan.auditor@erdfisch.de>
+ * @TODO
+ * Views integration
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function scorm_reporting_menu() {
+  $items = array();
+  $items['user/%user/scorm_reporting'] = array(
+    'title' => 'Reporting',
+    'page callback' => 'scorm_reporting_user_page',
+    'page arguments' => array(1),
+    'access callback' => 'scorm_reporting_access_callback',
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+function scorm_reporting_access_callback() {
+  return user_access('access reporting') || user_access('access own reporting');
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function scorm_reporting_perm() {
+  return array('access reporting', 'access own reporting');
+}
+
+/**
+ * Reporting page; Menu callback.
+ */
+function scorm_reporting_user_page($account) {
+
+  $output = '';
+
+  drupal_set_title($account->name);
+
+  $query = "SELECT DISTINCT(csid) FROM {cmi_learner_attempt} cla
+            WHERE cla.uid = %d
+            ORDER BY cla.claid ASC";
+  $result = db_query($query, $account->uid);
+  while ($row = db_fetch_object($result)) {
+    $current = scorm_reporting_get_current_attempt($account->uid, $row->csid);
+    $current[0]['nid'] = l(t('resume'), 'node/' . $current[0]['nid']);
+    $current[0]['total_time'] = cmi_ISO8601Duration_to_timestamp($current[0]['total_time'], 1);
+
+    $header = array(t('Title'), t('Progress'), t('Success'), t('Total Time'));
+    $output .= theme('table', $header, $current);
+    
+//    $previuos = scorm_reporting_get_all_attempts($account->uid, $row->csid);
+//    $header = array();
+//    $output .= theme('table', $header, $rows);
+  }
+
+  return $output;
+}
+
+/**
+ * 
+ */
+function scorm_reporting_get_current_attempt($uid, $csid) {
+  $rows = array();
+  $query = "SELECT n.title, cla.progress_measure, cla.success_status, cla.total_time, n.nid FROM {node} n
+              LEFT JOIN {cmi_sco} cs ON cs.nid = n.nid
+              LEFT JOIN {cmi_learner_attempt} cla ON cs.csid = cla.csid
+              WHERE cla.uid = %d
+                AND cla.csid = %d 
+              ORDER BY cla.claid LIMIT 1";
+  $result = db_query($query, $uid, $csid);
+  while ($row = db_fetch_array($result)) {
+    $rows[] = $row;
+  }
+  return $rows;
+}
+
+/**
+ * 
+ */
+function scorm_reporting_get_all_attempts($uid, $csid) {
+  $rows = array();
+  $query = "SELECT cla.completion_status, cla.progress_measure, cla.success_status, COUNT(*) FROM {cmi_learner_attempt} cla 
+              LEFT JOIN {cmi_sco} cs ON cs.csid = cla.csid
+              INNER JOIN {node} n ON cs.nid = n.nid
+              WHERE cla.uid = %d
+                AND cla.csid = %d 
+              GROUP BY cla.success_status WITH ROLLUP";
+  $result = db_query($query, $uid, $csid);
+  while ($row = db_fetch_array($result)) {
+    $rows[] = $row;
+  }
+  return $rows;
+}

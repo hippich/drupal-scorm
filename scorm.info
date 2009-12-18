@@ -1,0 +1,5 @@
+; $Id$
+name = The SCORM
+description = The SCORM - Sharable Content Object Reference Model.
+package = "LMS"
+core = 6.x

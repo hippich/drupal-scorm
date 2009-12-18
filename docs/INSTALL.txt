@@ -1,0 +1,36 @@
+$Id$
+
+INSTALL.txt
+
+For development purpose I included some test files you may use them by creating 
+a few nodes:
+________________________________________________________________________________
+
+To test the discovery algorithm [1] switch the input format to PHP code and 
+insert:
+
+<div id="API_1484_11">
+<iframe id="API_1484_11_iframe" name="scorm" style="height:50px;width:100%;border:0;" src="<?php print base_path() . drupal_get_path('module', 'scorm_rte'); ?>/docs/discovery.html"></iframe>
+</div>
+<!--break-->
+________________________________________________________________________________
+
+For Claude Ostyn's SCORM Diagnostic SCO [2] switch the input format to PHP code 
+and insert:
+
+<div id="API_1484_11">
+<iframe id="API_1484_11_iframe" name="scorm" style="height:550px;width:100%;border:0;" src="<?php print base_path() . drupal_get_path('module', 'scorm_rte'); ?>/docs/proddingsco/proddingsco.htm"></iframe>
+</div>
+<!--break-->
+________________________________________________________________________________
+
+There are some more tools available from ostyn.com [2] I didn't test them, yet.
+But if you did or found other tools worth sharing, please post an issue [3] .
+
+[1] http://audiens.de/node/277
+[2] http://www.ostyn.com/resdownloads.htm
+[3] http://drupal.org/node/add/project-issue/scorm
+
+_________________________________________________________________________________
+
+Note: Checked js with http://www.jslint.com/

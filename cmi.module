@@ -1,0 +1,1861 @@
+.<?php
+// $Id$
+
+/**
+ * @file
+ * SCORM 2004 Datamodel (CMI)
+ *
+ * @author
+ * Stefan Auditor <stefan.auditor@erdfisch.de>
+ */
+
+// CMI data model version
+define('CMI_VERSION', 1.0);
+
+define('CMI_YEAR', (365*4+1)/4*24*60*60);
+define('CMI_MONTH', (365*4+1)/48*24*60*60);
+define('CMI_DAY', 24*60*60);
+define('CMI_HOUR', 60*60);
+define('CMI_MINUTE', 60);
+define('CMI_SECOND', 1);
+
+/**
+ * Define CMI data model elements
+ */
+function cmi_dm() {
+  $dm = array();
+
+  $dm = array(
+    'cmi' => array(
+      '_version' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+      ),
+
+      'comments_from_learner' => array(
+        'read'        => FALSE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+
+        '_children' => array(
+          'value'       => 'comment,location,timestamp',
+          'read'        => TRUE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+        ),
+        '_count' => array(
+          'value'       => NULL,
+          'read'        => TRUE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+        ),
+        0 => array(
+          'read'        => FALSE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+
+          'comment' => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'location'  => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'timestamp' => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+        ),
+      ),
+
+      'comments_from_lms' => array(
+        'read'        => FALSE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+
+        '_children' => array(
+          'value'       => 'comment,location,timestamp',
+          'read'        => TRUE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+        ),
+        '_count' => array(
+          'value'       => NULL,
+          'read'        => TRUE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+        ),
+        0 => array(
+          'read'        => FALSE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+
+          'comment' => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => FALSE,
+            'implemented' => TRUE,
+          ),
+          'location'  => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => FALSE,
+            'implemented' => FALSE,
+          ),
+          'timestamp' => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => FALSE,
+            'implemented' => TRUE,
+          ),
+        ),
+      ),
+
+      'completion_status' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => TRUE,
+        'implemented' => TRUE,
+        'states'      => array(
+          0 => 'completed',
+          1 => 'incomplete',
+          2 => 'not attempted',
+          3 => 'unknown',
+        ),
+      ),
+
+      //TODO: Initialize value from imsmanifest.xml on SCO import
+      'completion_threshold' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+      ),
+
+      'credit' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+        'states'      => array(
+          0 => 'credit',
+          1 => 'no_credit',
+        ),
+      ),
+
+      'entry' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+        'states'      => array(
+          0 => 'ab_initio',
+          1 => 'resume',
+          2 => '',
+        ),
+      ),
+
+      'exit' => array(
+        'value'       => NULL,
+        'read'        => FALSE,
+        'write'       => TRUE,
+        'implemented' => TRUE,
+        'states'      => array(
+          'timeout',
+          'suspend',
+          'logout',
+          'normal',
+          '',
+        ),
+      ),
+
+      'interactions' => array(
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+
+        '_children' => array(
+          'value'       => 'id,type,objectives,timestamp,correct_responses,weighting,learner_response,result,latency,description',
+          'read'        => TRUE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+        ),
+        '_count' => array(
+          'value'       => NULL,
+          'read'        => TRUE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+        ),
+        0   => array(
+          'read'        => FALSE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+
+          'objectives' => array(
+            'read'        => FALSE,
+            'write'       => FALSE,
+            'implemented' => TRUE,
+
+            '_count' => array(
+              'value'       => NULL,
+              'read'        => TRUE,
+              'write'       => FALSE,
+              'implemented' => TRUE,
+            ),
+
+            0 => array(
+              'read'        => FALSE,
+              'write'       => FALSE,
+              'implemented' => TRUE,
+
+              'id'  => array(
+                'value'       => NULL,
+                'read'        => TRUE,
+                'write'       => TRUE,
+                'implemented' => TRUE,
+              ),
+            ),
+          ),
+
+          'id'  => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'type'  => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+            'states'      => array(
+              'true-false',
+              'choice',
+              'fill-in',
+              'long-fill-in',
+              'matching',
+              'performance',
+              'sequencing',
+              'likert',
+              'numeric',
+              'other',
+            ),
+          ),
+          'timestamp'  => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'weighting'  => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'learner_response'  => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'result'  => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'latency'  => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'description'  => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+        ),
+      ),
+
+      //TODO: Initialize value from imsmanifest.xml on SCO import
+      'launch_data' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+      ),
+
+      'learner_id' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+      ),
+
+      'learner_name' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+      ),
+
+      'learner_preference' => array(
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+
+        '_children' => array(
+          'value'       => 'audio_level,language,delivery_speed,audio_captioning',
+          'read'        => TRUE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+        ),
+
+        'audio_level' => array(
+          'value'       => 1,
+          'read'        => TRUE,
+          'write'       => TRUE,
+          'implemented' => TRUE,
+        ),
+        'language' => array(
+          'value'       => '',
+          'read'        => TRUE,
+          'write'       => TRUE,
+          'implemented' => TRUE,
+        ),
+        'delivery_speed' => array(
+          'value'       => 1,
+          'read'        => TRUE,
+          'write'       => TRUE,
+          'implemented' => TRUE,
+        ),
+        'audio_captioning' => array(
+          'value'       => 0,
+          'read'        => TRUE,
+          'write'       => TRUE,
+          'implemented' => TRUE,
+        ),
+      ),
+
+      'location' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => TRUE,
+        'implemented' => TRUE,
+      ),
+
+      //TODO: Initialize value from imsmanifest.xml on SCO import
+      'max_time_allowed' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+      ),
+
+      'mode' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+        'states'      => array(
+          'browse',
+          'normal',
+          'review',
+        ),
+      ),
+
+      'objectives' => array(
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+
+        '_children' => array(
+          'value'       => 'id,score,success_status,completion_status,description',
+          'read'        => TRUE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+        ),
+        '_count' => array(
+          'value'       => NULL,
+          'read'        => TRUE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+        ),
+
+        0 => array(
+          'read'        => FALSE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+
+          'id' => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+
+          'score' => array(
+            'read'        => FALSE,
+            'write'       => FALSE,
+            'implemented' => TRUE,
+
+            '_children' => array(
+              'value'       => 'scaled,raw,min,max',
+              'read'        => TRUE,
+              'write'       => FALSE,
+              'implemented' => TRUE,
+            ),
+
+            'scaled' => array(
+              'value'       => NULL,
+              'read'        => TRUE,
+              'write'       => TRUE,
+              'implemented' => TRUE,
+            ),
+            'raw' => array(
+              'value'       => NULL,
+              'read'        => TRUE,
+              'write'       => TRUE,
+              'implemented' => TRUE,
+            ),
+            'min' => array(
+              'value'       => NULL,
+              'read'        => TRUE,
+              'write'       => TRUE,
+              'implemented' => TRUE,
+            ),
+            'max' => array(
+              'value'       => NULL,
+              'read'        => TRUE,
+              'write'       => TRUE,
+              'implemented' => TRUE,
+            ),
+          ),
+
+          'success_status' => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'completion_status' => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'progress_measure' => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+          'description' => array(
+            'value'       => NULL,
+            'read'        => TRUE,
+            'write'       => TRUE,
+            'implemented' => TRUE,
+          ),
+        ),
+      ),
+
+      'progress_measure' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => TRUE,
+        'implemented' => TRUE,
+      ),
+
+      //TODO: Initialize value from imsmanifest.xml on SCO import
+      'scaled_passing_score' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+      ),
+
+      'score' => array(
+        'read'        => FALSE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+
+        '_children' => array(
+          'value'       => 'scaled,min,max,raw',
+          'read'        => TRUE,
+          'write'       => FALSE,
+          'implemented' => TRUE,
+        ),
+
+        'scaled' => array(
+          'value'       => NULL,
+          'read'        => TRUE,
+          'write'       => TRUE,
+          'implemented' => TRUE,
+        ),
+        'min' => array(
+          'value'       => NULL,
+          'read'        => TRUE,
+          'write'       => TRUE,
+          'implemented' => TRUE,
+        ),
+        'max' => array(
+          'value'       => NULL,
+          'read'        => TRUE,
+          'write'       => TRUE,
+          'implemented' => TRUE,
+        ),
+        'raw' => array(
+          'value'       => NULL,
+          'read'        => TRUE,
+          'write'       => TRUE,
+          'implemented' => TRUE,
+        ),
+      ),
+
+//      'objectives' => array(
+//        'read'        => TRUE,
+//        'write'       => FALSE,
+//        'implemented' => TRUE,
+//
+//        '_children' => array(
+//          'value'       => 'scaled,min,max,raw',
+//          'read'        => TRUE,
+//          'write'       => FALSE,
+//          'implemented' => TRUE,
+//        ),
+//      ),
+
+      'session_time' => array(
+        'value'       => NULL,
+        'read'        => FALSE,
+        'write'       => TRUE,
+        'implemented' => TRUE,
+      ),
+
+      'success_status' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => TRUE,
+        'implemented' => TRUE,
+        'states'      => array(
+          'passed',
+          'failed',
+          'unknown',
+        ),
+      ),
+
+      'suspend_data' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => TRUE,
+        'implemented' => TRUE,
+      ),
+
+      'time_limit_action' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+        'states'      => array(
+          'exit_message',
+          'continue_message',
+          'exit_no_message',
+          'continue_no_message',
+        ),
+      ),
+
+      'total_time' => array(
+        'value'       => NULL,
+        'read'        => TRUE,
+        'write'       => FALSE,
+        'implemented' => TRUE,
+      ),
+
+    ),
+  );
+
+  return $dm;
+}
+
+/**
+ * Implementation of hook_initialize().
+ *
+ * The function is used to initiate the communication session. It allows the LMS
+ * to handle LMS specific initialization issues.
+ *
+ * TODO: see 2.1.1.1 Managing Learner Attempts and Learner Sessions in SCORM_RunTimeEnv.pdf
+ */
+function cmi_scorm_rte_initialize($params = array()) {
+  //Get SCO ID
+  $query = "SELECT cs.csid FROM {cmi_sco} cs
+              WHERE cs.nid=%d";
+  $result = db_query($query, $params['nid']);
+  $params['csid'] = db_result($result);
+
+  //Check for latest attempt and session
+  $query = "SELECT * FROM {cmi_learner_attempt} cla
+              LEFT JOIN cmi_learner_session cls ON cla.claid = cls.claid
+              WHERE cla.csid = %d
+                AND cla.uid = %d
+              ORDER BY cls.clsid DESC
+              LIMIT 1";
+  $result = db_query($query, $params['csid'], $params['uid']);
+
+  if ($attempt = db_fetch_object($result)) {
+    switch ($attempt->exit_) {
+      case 'suspend':
+        // Resume attempt and create new session
+        $query = "INSERT INTO {cmi_learner_session} (claid, entry, timestamp) VALUES (%d, '%s', %d)";
+        $init = db_query($query, $attempt->claid, 'resume', time());
+        return $init ? TRUE : FALSE;
+        break;
+      case 'time-out':
+      case 'logout':
+      case 'normal':
+      case '':
+        // Create a new session
+        break;
+    }
+  }
+
+  // Create new attempt
+  $query = "INSERT INTO {cmi_learner_attempt} (csid, uid) VALUES (%d, %d)";
+  db_query($query, $params['csid'], $params['uid']);
+
+  $query = "SELECT claid FROM {cmi_learner_attempt} cla
+              WHERE cla.uid = %d
+              ORDER BY claid DESC";
+  $params['claid'] = db_result(db_query($query, $params['uid']));
+
+  // Create new session
+  $query = "INSERT INTO {cmi_learner_session} (claid, entry, timestamp) VALUES (%d, '%s', %d)";
+  $init = db_query($query, $params['claid'], 'ab-initio', time());
+
+  return $init ? TRUE : FALSE;
+}
+
+
+/**
+ * Implementation of hook_terminate().
+ *
+ * The function is used to terminate the communication session. It is used by
+ * the SCO when the SCO has determined that it no longer needs to communicate
+ * with the LMS.
+ */
+function cmi_scorm_rte_terminate($params = array()) {
+  return TRUE;
+}
+
+/**
+ * Initialize data model
+ */
+function cmi_scorm_rte_load_datamodel($params = array()) {
+  $dm = cmi_dm();
+
+  foreach ($dm['cmi'] as $key => $element) {
+    $dm['cmi'][$key] = module_invoke('cmi', 'load_data', $key, $element, $params);
+  }
+  return $dm;
+}
+
+/**
+ * Load data
+ */
+function cmi_load_data($key, $element, $params) {
+  $data = array();
+
+  switch ($key) {
+    default:
+//      if ($key == 'objectives') {
+//        drupal_set_message('<pre>'.$key.':'. print_r($params, 1) .'</pre>');
+//        $dings = dmi_dm_extract_value('cmi.'. $key);
+//        drupal_set_message('<pre>'. print_r($dings, 1) .'</pre>');
+//      }
+      $data = module_invoke('cmi_get', $key, $params, dmi_dm_extract_value('cmi.'. $key));
+      break;
+  }
+  return $data;
+}
+
+/**
+ * The cmi._version keyword data model element can be used by the SCO to
+ * determine the data model version supported by the LMS.
+ */
+function cmi_get__version($params = array(), $data = array()) {
+  $data['value'] = CMI_VERSION;
+  return $data;
+}
+
+/**
+ * There may be times where the content designer wishes to collect comments from
+ * the learner about the learning experience. The data model permits the
+ * tracking of comments from the learner on a per SCO basis.
+ *
+ * The cmi.comments_from_learner._children data model element represents a
+ * listing of supported data model elements. This data model element is
+ * typically used by a SCO to determine which data model elements are supported
+ * by the LMS. The characterstring returned may be used by the SCO to
+ * dynamically build parameters for the GetValue() and SetValue() requests.
+ *
+ * The cmi.comments_from_learner._count keyword describes the current number of
+ * learner comments that are being stored by the LMS for the SCO. The total
+ * number of entries currently being managed by the LMS shall be returned.
+ *
+ * The cmi.comments_from_learner.n.comment data model element shall describe
+ * textual input. The characterstring value represents a localized
+ * characterstring.
+ *
+ * The cmi.comments_from_learner.n.location data model element indicates the
+ * point in the SCO to which the comment applies. This data model element is
+ * implementation-defined by each SCO. If no value is specified for location,
+ * then the comment is applicable to the entire SCO (as a whole) rather than a
+ * specific location in the SCO.
+ *
+ * The cmi.comments_from_learner.n.timestamp data model element indicates the
+ * point in time at which the comment was created or most recently changed.
+ * Implementation shall support, minimally, time periods in the range of January
+ * 1, 1970 through January 1, 2038.
+ */
+function cmi_get_comments_from_learner($params = array(), $data = array()) {
+  // Count comments
+  $query = "SELECT COUNT(ccfl.comment) FROM {cmi_sco} cs
+              LEFT JOIN {cmi_comments_from_learner} ccfl ON cs.csid = ccfl.csid
+              WHERE ccfl.uid = %d
+                AND cs.nid = %d";
+  $count = db_result(db_query($query, $params['uid'], $params['nid']));
+  $data['_count']['value'] = (integer) $count;
+
+  // Load comments
+  $query = "SELECT ccfl.comment, ccfl.location, ccfl.timestamp FROM {cmi_sco} cs
+              LEFT JOIN {cmi_comments_from_learner} ccfl ON cs.csid = ccfl.csid
+              WHERE ccfl.uid = %d
+                AND cs.nid = %d
+              ORDER BY ccfl.timestamp ASC";
+  $result = db_query($query, $params['uid'], $params['nid']);
+
+  $i=0;
+  $pattern = $data[0];
+  while ($comment = db_fetch_object($result)) {
+    $data[$i] = $pattern;
+
+    $data[$i]['comment']['value']   = $comment->comment;
+    $data[$i]['location']['value']  = $comment->location;
+    $data[$i]['timestamp']['value'] = $comment->timestamp;
+    $i++;
+  }
+
+  return $data;
+}
+
+/**
+ * The cmi.comments_from_lms data model element contains comments and
+ * annotations intended to be seen by all learners for the SCO for which they
+ * are defined. These comments are intended to be a mechanism for adding
+ * information of interest to all learners in a particular community, instructor
+ * notes, etc.
+ *
+ * The cmi.comments_from_lms._children data model element represents a listing
+ * of supported data model elements. This data model element is typically used
+ * by a SCO to determine which data model elements are supported by the LMS. The
+ * characterstring returned may be used by the SCO to dynamically build
+ * parameters for the GetValue() and SetValue() requests.
+ *
+ * The cmi.comments_from_lms._count keyword is used to describe the current
+ * number of comments from the LMS that are currently being stored by the LMS.
+ * The total number of entries currently being stored by the LMS shall be
+ * returned.
+ *
+ * The cmi.comments_from_lms.n.comment data model element shall describe
+ * comments or annotations associated with a SCO. The characterstring value
+ * represents the localized characterstring.
+ *
+ * The cmi.comments_from_lms.n.location data model element indicates the point
+ * in the SCO to which the comment applies. This data model element is
+ * implementation-defined by each SCO. If no value is specified for location,
+ * then the comment is applicable to the entire SCO (as a whole).
+ *
+ * The cmi.comments_from_lms.n.timestamp data model element indicates the point
+ * in time at which the comment was created or most recently changed.
+ * Implementation shall support, minimally, time periods in the range of January
+ * 1, 1970 through January 1, 2038.
+ */
+function cmi_get_comments_from_lms($params = array(), $data = array()) {
+  // Count comments
+  $query = "SELECT COUNT(c.cid) FROM {comments} c
+              WHERE c.nid=%d
+                AND c.status = 0";
+  $count = db_result(db_query($query, $params['nid']));
+  $data['_count']['value'] = $count;
+
+  // Load comments
+  $query = "SELECT c.comment, c.timestamp FROM {comments} c
+              WHERE c.nid=1
+                AND c.status = 0
+              ORDER BY thread DESC";
+  $result = db_query($query, $params['nid']);
+  $i = 0;
+  $pattern = $data[0];
+  while ($comment = db_fetch_object($result)) {
+    $data[$i] = $pattern;
+
+    $data[$i]['comment']['value']   = $comment->comment;
+    $data[$i]['location']['value']  = ''; // not initialized
+    $data[$i]['timestamp']['value'] = $comment->timestamp;
+
+    $i++;
+  }
+
+  return $data;
+}
+
+/**
+ * The cmi.completion_status data model element indicates whether the learner
+ * has completed the SCO.
+ *
+ * How the SCO determines its completion status is outside the scope of SCORM.
+ * This value indicates the overall completion status for the SCO as determined
+ * by the SCO developer.
+ */
+function cmi_get_completion_status($params = array(), $data = array()) {
+  $states = $data['states'];
+
+  //Get required data
+  $completion_threshold = cmi_get_completion_threshold($params);
+  $completion_threshold = $completion_threshold['value'];
+
+  $progress_measure = cmi_get_progress_measure($params);
+  $progress_measure = $progress_measure['value'];
+
+  $query = "SELECT completion_status FROM {cmi_sco} cs
+              LEFT JOIN {cmi_learner_attempt} cla ON cs.csid = cla.csid
+              WHERE cs.nid=%d
+                AND cla.uid=%d
+              ORDER BY cla.claid DESC";
+  $completion_status = db_result(db_query($query, $params['nid'], $params['uid']));
+
+  //4.2.4.1: Completion Status Evaluation (SCORM_RunTimeEnv.pdf)
+  if ($completion_threshold AND $progress_measure) {
+
+    if ($progress_measure >= $completion_threshold) {
+      $status = $states[0];
+    }
+    elseif ($progress_measure < $completion_threshold) {
+      $status = $states[1];
+    }
+
+  }
+  elseif ($completion_threshold) {
+    $status = $states[3];
+  }
+  elseif ($progress_measure) {
+
+    if (in_array($completion_status, $states)) {
+      $status = $completion_status;
+    }
+    else {
+      $status = $states[3];
+    }
+
+  }
+  else {
+
+    if (in_array($completion_status, $states)) {
+      $status = $completion_status;
+    }
+    else {
+      $status = $states[3];
+    }
+
+  }
+
+  $data['value'] = $status;
+
+  return $data;
+}
+
+/**
+ * The value stored in the cmi.completion_threshold data model element can be
+ * used to determine whether the SCO should be considered complete.
+ *
+ * This can be accomplished by comparing the cmi.completion_threshold to the
+ * cmi.progress_measure, made by the learner, towards the completion of the SCO.
+ */
+function cmi_get_completion_threshold($params = array(), $data = array()) {
+  $query = "SELECT completion_threshold FROM {cmi_sco} cs
+              WHERE cs.nid=%d";
+  $result = db_result(db_query($query, $params['nid']));
+  $data['value'] = $result ? $result : '';
+  return $data;
+}
+
+/**
+ * The cmi.credit data model element indicates whether the learner will be
+ * credited for performance in the SCO.
+ *
+ * How a SCO is prescribed to be taken for
+ * credit or no credit is outside the scope of SCORM. The default value for this
+ * data model element is the fact that the SCO is being taken for credit.
+ */
+function cmi_get_credit($params = array(), $data = array()) {
+  global $user;
+  $states = $data['states'];
+
+  //See 4.2.16.1 Mode and Credit Usage Requirements (SCORM_RunTimeEnv.pdf)
+  $current_cmi_mode = cmi_get_mode($params);
+  if ($current_cmi_mode == 'browse' OR $current_cmi_mode == 'review') {
+    $credit = $states[1];
+  }
+  elseif ($current_cmi_mode == 'normal') {
+    $credit = $user->cmi['credit'] ? $user->cmi['credit'] : $states[0];
+  }
+  $data['value'] = $credit ? $credit : $states[0];
+
+  return $data;
+}
+
+/**
+ * The cmi.entry data model element contains information that asserts whether
+ * the learner has previously accessed the SCO.
+ *
+ * As defined in the Temporal Model (refer to Section 2.1.1: Run-Time
+ * Environment Temporal Model), an entry value of “ab-initio” indicates that the
+ * SCO has a default (clean) set of run-time data. There is no run-time data
+ * available from any previous learner attempts. An entry value of “resume”
+ * indicates that the SCO is accessing run-time data for the current learner
+ * attempt as set from the previous learner session on the SCO.
+ */
+function cmi_get_entry($params = array(), $data = array()) {
+  $states = $data['states'];
+
+  $query = "SELECT entry, exit_ FROM {cmi_sco} cs
+              LEFT JOIN {cmi_learner_attempt} cla ON cs.csid = cla.csid
+              LEFT JOIN {cmi_learner_session} cls ON cla.claid = cls.claid
+              WHERE cs.nid=%d
+                AND cla.uid=%d
+              ORDER BY cla.claid, cls.clsid DESC";
+  $session = db_fetch_object(db_query($query, $params['nid'], $params['uid']));
+
+  if (!$session->clsid) {
+    $entry = $states[0];
+  }
+  elseif ($session->exit_ == 'suspend' OR $session->exit_ == 'logout') {
+    $entry = $states[1];
+  }
+  else {
+    $entry = $states[2];
+  }
+
+  $data['value'] = $entry;
+  return $data;
+}
+
+/**
+ * The cmi.exit data model element indicates how or why the learner left the SCO.
+ * This value is used to indicate the reason that the SCO was last exited.
+ */
+function cmi_get_exit($params = array(), $data = array()) {
+  $states = $data['states'];
+
+  $query = "SELECT exit_ FROM {cmi_sco} cs
+              LEFT JOIN {cmi_learner_attempt} cla ON cs.csid = cla.csid
+              LEFT JOIN {cmi_learner_session} cls ON cla.claid = cls.claid
+              WHERE cs.nid=%d
+                AND cla.uid=%d
+              ORDER BY cla.claid, cls.clsid DESC";
+  $state = db_result(db_query($query, $params['nid'], $params['uid']));
+  $data['value'] = in_array($state, $states) ? $state : $states[4];
+  return $data;
+}
+
+/**
+ * The interactions data model element defines a collection of learner responses
+ * that can be passed from the SCO to the LMS.
+ *
+ * Interactions are intended to be responses to individual questions or tasks
+ * that the SCO developer wants to record. There is no implied behavior an LMS
+ * shall have when interactions are requested to be set, other than storage of
+ * the data.
+ *
+ * The cmi.interactions._children data model element represents a listing of
+ * supported data model elements. This data model element is typically used by a
+ * SCO to determine which data model elements are supported by the LMS. The
+ * characterstring returned may be used by the SCO to dynamically build
+ * parameters for the GetValue() and SetValue() requests.
+ *
+ * The cmi.interactions._count keyword is used to describe the current number of
+ * interactions being stored by the LMS. The total number of entries currently
+ * being stored by the LMS shall be returned.
+ *
+ * The cmi.interactions.n.id data model element is a label for the interaction.
+ * This label shall be unique at least within the scope of the SCO per
+ * interaction record.
+ *
+ * The cmi.interactions.n.type data model element indicates which type of
+ * interaction is recorded in an instance of an interaction. It is also used to
+ * determine how the interaction response should be interpreted.
+ *
+ * The cmi.interactions.n.objectives._count keyword is used to describe the
+ * current number of objectives (i.e., objective identifiers) being stored by
+ * the LMS for the given interaction (i.e., the interaction data stored at
+ * position n). The total number of entries currently being stored by the LMS
+ * shall be returned.
+ *
+ * The cmi.interactions.n.objectives.m.id data model element is a label for
+ * objectives associated with the interaction. The label shall be unique at
+ * least within the scope of the SCO.
+ * The objective identifiers may or may not correspond to the objective
+ * identifiers found in the Objectives data model element (cmi.objectives.n.id).
+ * Whether or not there is a relationship to the objective identifiers is
+ * implementation specific. The SCO may be designed to track this information
+ * and relationship.
+ * The cmi.interactions.n.objectives.m.id is an array of objective identifiers.
+ * The LMS shall maintain an array of at a least 10 (required SPM) of objective
+ * identifiers. The LMS may extend the ability to store more, however, this is
+ * implementation specific.
+ *
+ * The cmi.interactions.n.timestamp data model element is the point in time at
+ * which the interaction was first made available to the learner for learner
+ * interaction and response. The value of the timestamp is represented as a
+ * point in time. If several interactions are presented at the same time, they
+ * have the same timestamp value. If an interaction was never available for
+ * response, such as an interaction that is not used in an adaptive test, no
+ * timestamp value is available for that interaction. If a timestamp value is
+ * available for an interaction but no learner response data is available, it
+ * should be assumed the interaction has been available to the learner but the
+ * learner did not respond to the interaction.
+ *
+ * The cmi.interactions.n.correct_responses._countd keyword is used to describe
+ * the current number of correct responses being stored by the LMS.
+ * The total number of entries currently being stored by the LMS shall be
+ * returned.
+ *
+ * TODO:
+ * The cmi.interactions.n.correct_responses.n.pattern data model element defines
+ * one correct response pattern for the interaction. The format of the pattern
+ * value depends on the type (cmi.interactions.n.type) of interaction.
+ * The cmi.interactions.n.correct_responses collection is a packed array of
+ * correct responses for an interaction. Depending on the type
+ * (cmi.interactions.n.type) of interaction, the number of correct response
+ * patterns required to be supported varies.
+ *
+ * The cmi.interactions.n.weighting data model element is the weight given to
+ * the interaction that may be used by the SCO to compute a value for a score.
+ * The interaction weights typically are used to explain the effect of an
+ * interaction on the value of the score but are not intended to be used by
+ * systems other than the SCO to compute the score [1]. How this value or any
+ * calculation of a total score is computed by the SCO is outside the scope of
+ * SCORM.
+ *
+ * The cmi.interactions.n.learner_response data model element consists of the
+ * data generated when a learner responds to an interaction. The learner’s
+ * response shall have one of ten possible variants. Each variant depends on the
+ * type (i.e., cmi.interactions.n.type) of interaction.
+ *
+ * The cmi.interactions.n.result data model element is a judgment of the
+ * correctness of the learner response.
+ *
+ * The cmi.interactions.n.latency data element is the time elapsed between the
+ * time the interaction was made available to the learner for response and the
+ * time of the first response. The latency information is not available for an
+ * interaction if the learner did not respond. The latency is, in effect, the
+ * time difference between the cmi.interactions.n.timestamp of the interaction
+ * and the time of the first response.
+ *
+ * The cmi.interactions.n.description data model element is a brief informative
+ * description of the interaction.
+ */
+function cmi_get_interactions($params = array(), $data = array()) {
+  //TODO: Implement
+  // Count interactions
+  $query = "SELECT COUNT(ciid) FROM {cmi_interactions}";
+  $count = db_result(db_query($query));
+  $data['_count']['value'] = $count;
+
+//  // Load interactions
+//  $query = "SELECT ci.ciid, ci.id, ci.type, ci.timestamp, ci.weighting, ci.learner_response, ci.result, ci.latency, ci.description FROM {cmi_interactions} ci
+//              WHERE ci.nid=%d
+//                AND ci.uid=%d
+//              ORDER BY ci.timestamp DESC";
+//  $result = db_query($query, $params['nid'], $params['uid']);
+//  $i = 0;
+//  $pattern = $data[0];
+//  while ($interaction = db_fetch_object($result)) {
+//    $data[$i] = $pattern;
+//
+//    $data[$i]['id']['value']                = $interaction->id;
+//    $data[$i]['type']['value']              = $interaction->type;
+//
+//    // Count objectives
+//    $query = "SELECT COUNT(coid) FROM {cmi_interactions_objectives}
+//                WHERE ciid=%d";
+//    $o_count = db_result(db_query($query, $interaction->ciid));
+//    $data[$i]['objectives']['_count']['value']  = $o_count;
+//
+//    // Load objectives
+//    $query = "SELECT coid FROM {cmi_interactions_objectives}
+//                WHERE ciid=%d";
+//    $o_result = db_query($query, $interaction->ciid);
+//    $j = 0;
+//    while ($objective = db_fetch_object($o_result)) {
+//      $data[$i]['objectives'][$j]['id']['value']  = $objective->coid;
+//      $j++;
+//    }
+//
+//    $data[$i]['timestamp']['value']         = $interaction->timestamp;
+//    $data[$i]['weighting']['value']         = $interaction->weighting;
+//    $data[$i]['learner_response']['value']  = $interaction->learner_response;
+//    $data[$i]['result']['value']            = $interaction->result;
+//    $data[$i]['latency']['value']           = $interaction->latency;
+//    $data[$i]['description']['value']       = $interaction->description;
+//
+//    $i++;
+//  }
+//
+  return $data;
+}
+
+/**
+ * During the learning experience, there may be a need to provide the SCO
+ * associated with a learning activity with some launch information. This is
+ * information that cannot be represented using parameters to the SCO prior to
+ * the launch. The cmi.launch_data data model element provides the content
+ * designer a means to supply this information.
+ *
+ * The cmi.launch_data data model element provides data specific to a SCO that
+ * the SCO can use for initialization. The value of this data model element is
+ * not specified.
+ */
+function cmi_get_launch_data($params = array(), $data = array()) {
+  $query = "SELECT launch_data FROM {cmi_sco} cs
+              WHERE cs.nid=%d";
+  $result = db_result(db_query($query, $params['nid']));
+  $data['value'] = $result ? $result : '';
+  return $data;
+}
+
+/**
+ * The cmi.learner_id data model element identifies the learner on behalf of
+ * whom the SCO was launched.
+ *
+ * The cmi.learner_id shall be unique at least within
+ * the scope of the SCO. How the cmi.learner_id is assigned is outside the scope
+ * of SCORM. One typical case on how learner_ids are assigned is through some
+ * learner registration process defined by the LMS. The cmi.learner_id
+ * identifies the learner in a given LMS.
+ */
+function cmi_get_learner_id($params = array(), $data = array()) {
+  global $user;
+  $data['value'] = $user->uid;
+  return $data;
+}
+
+/**
+ * The cmi.learner_name data model element is the name provided for the learner
+ * by the LMS.
+ *
+ * How the cmi.learner_name is assigned or created is outside the scope of SCORM.
+ * The cmi.learner_name may come from some LMS learner registration system or
+ * through some learner profile information. There may be other mechanisms for
+ * creation and assignment of the cmi.learner_name, however there is no
+ * restriction on how this process is accomplished.
+ */
+function cmi_get_learner_name($params = array(), $data = array()) {
+  global $user;
+  $data['value'] = $user->name;
+  return $data;
+}
+
+/**
+ * The Learner preference data specifies learner preferences associated with the
+ * learner’s use of the SCO.
+ *
+ * There is no restriction on how this learner preference data is determined.
+ *
+ * The cmi.learner_preference._children data model element represents a listing
+ * of supported data model elements. This data model element is typically used
+ * by a SCO to determine which data model elements are supported by the LMS. The
+ * characterstring returned may be used by the SCO to dynamically build
+ * parameters for the GetValue() and SetValue() requests.
+ *
+ * The cmi.learner_preference.audio_level data model element is a multiplier
+ * value that specifies an intended change in perceived audio level relative to
+ * an implementation-specific reference level with 1 meaning “no change”. For
+ * example, the value 0 specifies infinite attenuation, the value of 0.5
+ * specifies an attenuation of 10 decibels and the value of 2 specifies an
+ * amplification of 10 decibels.
+ *
+ * The cmi.learner_preference.language data model element is the learner’s
+ * preferred language for SCOs with multilingual capability.
+ *
+ * The cmi.learner_preference.delivery_speed data model element is a multiplier
+ * that specifies the learner’s preferred relative speed of content delivery
+ * expressed as a change in speed relative to an implementation-specific
+ * reference speed. For example, 2 is twice as fast as the reference speed and
+ * 0.5 is one half the reference speed. The default value shall be 1.
+ *
+ * The cmi.learner_preference.audio_captioning data model element specifies
+ * whether captioning text corresponding to audio is displayed.
+ */
+function cmi_get_learner_preference($params = array(), $data = array()) {
+  global $user;
+  $data['audio_level']['value']      = $user->cmi['audio_level']      ? (integer) $user->cmi['audio_level']      : (integer) $data['audio_level']['value'];
+  $data['language']['value']         = $user->cmi['language']         ? (integer) $user->cmi['language']         : (integer) $data['language']['value'];
+  $data['delivery_speed']['value']   = $user->cmi['delivery_speed']   ? (integer) $user->cmi['delivery_speed']   : (integer) $data['delivery_speed']['value'];
+  $data['audio_captioning']['value'] = $user->cmi['audio_captioning'] ? (integer) $user->cmi['audio_captioning'] : (integer) $data['audio_captioning']['value'];
+  return $data;
+}
+
+/**
+ * The cmi.location data model element is a location in the SCO.
+ *
+ * Its value and meaning are defined by the SCO. The first time the learner
+ * attempts the SCO or if there is no preferred initial location, the value
+ * shall be an empty characterstring (“”).
+ */
+function cmi_get_location($params = array(), $data = array()) {
+  $query = "SELECT location FROM {cmi_sco} cs
+              LEFT JOIN {cmi_learner_attempt} cla ON cs.csid = cla.csid
+              WHERE cs.nid=%d
+                AND cla.uid=%d
+              ORDER BY cla.claid DESC";
+  $result = db_result(db_query($query, $params['uid'], $params['nid']));
+  $data['value'] = $result ? $result : '';
+  return $data;
+}
+
+/**
+ * The cmi.max_time_allowed data model element is the amount of accumulated time
+ * the learner is allowed to use a SCO in the learner attempt. The learner
+ * attempt begins with the beginning of the first learner session and continues
+ * until the activity terminates.
+ */
+function cmi_get_max_time_allowed($params = array(), $data = array()) {
+  $query = "SELECT max_time_allowed FROM {cmi_sco} cs
+              WHERE cs.nid=%d";
+  $result = db_result(db_query($query, $params['nid']));
+  $data['value'] = $result ? $result : '';
+  return $data;
+}
+
+/**
+ * The cmi.mode data model element identifies one of three possible modes in
+ * which the SCO may be presented to the learner. This value can be used to
+ * indicate a SCO’s behavior after launch.
+ */
+function cmi_get_mode($params = array(), $data = array()) {
+  global $user;
+  $states = $data['states'];
+
+  if (is_array($states)) {
+    $data['value'] = in_array($user->cmi['mode'], $states) ? $user->cmi['mode'] : $states[1];
+  }
+  return $data;
+}
+
+/**
+ * Instructional designers may wish to associate learning or other types of
+ * objectives with a learning activity and its associated content object.
+ *
+ * SCORM does not define what an objective is or place requirements on its use.
+ * However, SCORM does define how the status of objectives, regardless of type,
+ * may be tracked during a learner experience, and how tracked objective status
+ * may be used to affect sequencing evaluations.
+ *
+ * The cmi.objectives._children data model element represents a listing of
+ * supported data model elements. This data model element is typically used by a
+ * SCO to determine which data model elements are supported by the LMS. The
+ * characterstring returned may be used by the SCO to dynamically build
+ * parameters for the GetValue() and SetValue() requests.
+ *
+ * The cmi.objectives._count keyword is used to describe the current number of
+ * objectives being stored by the LMS. The total number of entries currently
+ * being stored by the LMS shall be returned. The LMS is responsible for
+ * supporting the smallest permitted maximum of 100 objectives.
+ *
+ * The cmi.objectives.n.id data model element is an identifier for an objective
+ * and shall be unique, at least within the scope of the SCO. The
+ * cmi.objectives.n.id data model element shall contain a valid value if either
+ * the score or status data model elements described below is implemented. If a
+ * SCO is requesting to store objective information, then the SCO is required to
+ * set the identifier first (unless it was initialized by another means), prior
+ * to any other objective information. Once the cmi.objectives.n.id has a value,
+ * the data model element is not allowed to be reset to a different value.
+ *
+ * The cmi.objectives.n.score._children data model element represents a listing
+ * of supported data model elements. This data model element is typically used
+ * by a SCO to determine which data model elements are supported by the LMS. The
+ * characterstring returned may be used by the SCO to dynamically build
+ * parameters for the GetValue() and SetValue() requests.
+ *
+ * The cmi.objectives.n.score.scaled data model element is a number that
+ * reflects the performance of the learner for the objective. The value of the
+ * data model element is scaled to fit the range –1 to 1 inclusive [1]. If there
+ * is sequencing information applied to the learning activity associated with
+ * the SCO that relies on a measure, the SCO should ensure score information is
+ * accurately sent to the LMS ( SetValue() ) prior to the SCO’s learner session
+ * ending. If the measure is not reported by the SCO, then the LMS will use the
+ * value “unknown” as the objective measure for the appropriate objective (based
+ * on objective IDs) of the learning activity associated with the SCO when
+ * processing sequencing information.
+ *
+ * The cmi.objectives.n.score.raw data model element is a number that reflects
+ * the performance of the learner, for the objective, relative to the range
+ * bounded by the values of min and max.
+ *
+ * The cmi.objectives.n.score.min data model element is the minimum value, for
+ * the objective, in the range for the raw score.
+ *
+ * The cmi.objectives.n.score.max data model element is the maximum value, for
+ * the objective, in the range for the raw score.
+ *
+ * The cmi.objectives.n.success_status data model element indicates whether the
+ * learner has mastered the objective. How the SCO determines the
+ * cmi.objectives.n.success_status for the objective is outside the scope of
+ * SCORM. The SCO could base this decision on a certain percentage of
+ * interactions being passed that map to the objective, a total score for a test
+ * or quiz, based on the objectives, compared against a mastery score, etc. This
+ * value indicates the overall success status for the SCO as determined by the
+ * SCO developer. If there is sequencing information applied to the learning
+ * activity associated with the SCO that relies on objective status, the SCO
+ * must ensure objective information is accurately sent to the LMS (SetValue())
+ * prior to the SCO’s learner session ending. Otherwise, the LMS will use the
+ * value “unknown” as the objective status for the appropriate objective (based
+ * on objective IDs) of the learning activity associated with the SCO when
+ * processing sequencing information.
+ *
+ * The cmi.objectives.n.completion_status data model element indicates whether
+ * the learner has completed the associated objective [1]. How the SCO
+ * determines the cmi.objectives.n.completion_status for the objective is
+ * outside the scope of SCORM. For example, the SCO could base this decision on
+ * a number of interactions associated with the objective being completed.
+ * Since the determination of cmi.objectives.n.completion_status is controlled
+ * and managed by the SCO, the LMS cannot imply that the SCO is completed in any
+ * way. If no cmi.objectives.n.completion_status is reported by the SCO, then
+ * the LMS can only rely on the fact that the cmi.objectives.n.completion_status
+ * is “unknown”.
+ *
+ * The cmi.objectives.n.progress_measure data model element indicates a measure
+ * of the progress the learner has made toward completing the associated
+ * objective. How the SCO determines the cmi.objectives.n.progress_measure for
+ * the objective is outside the scope of SCORM. For example, the SCO could base
+ * this decision on a number of interactions associated with the objective being
+ * completed. Since the determination of cmi.objectives.n.progress_measure is
+ * controlled and managed by the SCO, the LMS cannot imply the value of the
+ * progress measure in any way
+ *
+ * The cmi.objectives.n.description data model element provides a brief
+ * informative description of the objective.
+ */
+function cmi_get_objectives($params = array(), $data = array()) {
+  //TODO: Implement
+  // Count interactions
+  $query = "SELECT COUNT(ciid) FROM {cmi_objectives}";
+  $count = db_result(db_query($query));
+  $data['_count']['value'] = $count;
+
+//  $query = "SELECT COUNT(coid) FROM {cmi_sco} cs
+//              LEFT JOIN {cmi_learner_attempt} cla ON cs.csid = cla.csid
+//              LEFT JOIN {cmi_objectives} co ON
+//              WHERE cs.nid=%d";
+//  $data['_count']['value'] = db_result(db_query($query, $params['nid']));
+//  //TODO: Load objectives
+//  drupal_set_message('<pre>params:'. print_r($params, 1) .'</pre>');
+//  drupal_set_message('<pre>data:'. print_r($data, 1) .'</pre>');
+  return $data;
+}
+
+/**
+ * The cmi.progress_measure data model element is a measure of the progress the
+ * learner has made toward completing the SCO.
+ */
+function cmi_get_progress_measure($params = array(), $data = array()) {
+  $query = "SELECT progress_measure FROM {cmi_sco} cs
+            LEFT JOIN {cmi_learner_attempt} cla ON cs.csid = cla.csid
+              WHERE cs.nid=%d
+                AND cla.uid=%d
+              ORDER BY claid DESC";
+  $result = db_result(db_query($query, $params['nid'], $params['uid']));
+  $data['value'] = $result ? $result : '';
+  return $data;
+}
+
+/**
+ *
+ */
+function cmi_get_session_time($params = array(), $data = array()) {
+  return $data;
+}
+
+/**
+ * The cmi.scaled_passing_score data model element is the scaled passing score
+ * required to master the SCO. The value of the data model element is scaled to
+ * fit therange -1 to 1 inclusive. The value indicates the passing scaled
+ * score for a SCO.
+ */
+function cmi_get_scaled_passing_score($params = array(), $data = array()) {
+  $query = "SELECT scaled_passing_score FROM {cmi_sco} cs
+              WHERE cs.nid=%d";
+  $result = db_result(db_query($query, $params['nid']));
+  $data['value'] = $result ? $result : '';
+  return $data;
+}
+
+/**
+ * The score data model element is the learner’s score for the SCO.
+ *
+ * The cmi.score._children data model element represents a listing of supported
+ * data model elements. This data model element is typically used by a SCO to
+ * determine which data model elements are supported by the LMS. The
+ * characterstring returned may be used by the SCO to dynamically build
+ * parameters for the GetValue() and SetValue() requests.
+ *
+ * cmi.score.scaled: The scaled data model element is a number that reflects the
+ * performance of the learner. The value of the data model element is scaled to
+ * fit the range –1.0 to 1.0 inclusive.
+ *
+ * cmi.score.raw: The raw data model element is a number that reflects the
+ * performance of the learner relative to the range bounded by the values of min
+ * and max.
+ *
+ * cmi.score.min: The min data model element is the minimum value in the range
+ * for the raw score.
+ *
+ * cmi.score.max: The max data model element is the maximum value in the range
+ * for the raw score.
+ */
+function cmi_get_score($params = array(), $data = array()) {
+  $query = "SELECT cla.claid FROM {cmi_learner_attempt} cla
+              WHERE cla.uid = %d
+              ORDER BY claid DESC";
+  $params['claid'] = db_result(db_query($query, $params['uid']));
+
+  $query = "SELECT scaled,raw,min,max FROM {cmi_score} csc
+              WHERE claid = %d";
+  $score = db_fetch_object(db_query($query, $params['claid']));
+  $data['scaled']['value']  = $score->scaled ? $score->scaled : '';
+  $data['min']['value']     = $score->min ? $score->min : '';
+  $data['max']['value']     = $score->max ? $score->max : '';
+  $data['raw']['value']     = $score->raw ? $score->raw : '';
+  return $data;
+}
+
+/**
+ * The cmi.success_status data model element indicates whether the learner has
+ * mastered the SCO.
+ */
+function cmi_get_success_status($params = array(), $data = array()) {
+  //TODO: 4.2.22.1: Success Status Evaluation
+  //possible states
+  $states = $data['states'];
+  if (is_array($states)) {
+    $query = "SELECT cla.success_status FROM {cmi_sco} cs
+                LEFT JOIN {cmi_learner_attempt} cla ON cs.csid = cla.csid
+                WHERE cs.nid=%d
+                  AND cla.uid=%d
+                ORDER BY cla.claid DESC";
+    $state = db_result(db_query($query, $params['nid'], $params['uid']));
+    $data['value'] = in_array($state, $states) ? $state : $states[2];
+  }
+  return $data;
+}
+
+/**
+ * During a learning experience, the learner or SCO may wish to suspend the
+ * learner attempt on the SCO and resume the learner attempt later.
+ *
+ * If the learner attempt on the SCO is suspended, the state of the SCO’s
+ * run-time data will persist until the next learner session on the SCO (if the
+ * cmi.exit is set to “suspend”). The cmi.suspend_data data model element
+ * provides additional space to store and retrieve suspend data between learner
+ * sessions; suspend data may be used by the SCO to resume the learner attempt.
+ */
+function cmi_get_suspend_data($params = array(), $data = array()) {
+  $query = "SELECT suspend_data FROM {cmi_sco} cs
+              LEFT JOIN {cmi_learner_attempt} cla ON cs.csid = cla.csid
+              WHERE cs.nid=%d
+                AND cla.uid=%d
+              ORDER BY cla.claid DESC";
+  $result = db_result(db_query($query, $params['nid'], $params['uid']));
+  $data['value'] = $result ? $result : '';
+  return $data;
+}
+
+/**
+ * The cmi.time_limit_action data model element indicates what the SCO should do
+ * when cmi.max_time_allowed is exceeded.
+ */
+function cmi_get_time_limit_action($params = array(), $data = array()) {
+  //possible states
+  $states = $data['states'];
+  if (is_array($states)) {
+    $query = "SELECT time_limit_action FROM {cmi_sco} cs
+                WHERE cs.nid=%d";
+    $state = db_result(db_query($query, $params['nid']));
+    $data['value'] = in_array($state, $states) ? $state : $states[3];
+  }
+  return $data;
+}
+
+/**
+ * The cmi.time_limit_action data model element indicates what the SCO should do
+ * when cmi.max_time_allowed is exceeded.
+ */
+function cmi_get_total_time($params = array(), $data = array()) {
+  $query = "SELECT total_time FROM {cmi_sco} cs
+              LEFT JOIN {cmi_learner_attempt} cla ON cs.csid = cla.csid
+              WHERE cs.nid=%d
+                AND cla.uid=%d
+              ORDER BY cla.claid DESC";
+  $result = db_result(db_query($query, $params['nid'], $params['uid']));
+  $data['value'] = $result ? $result : 0;
+  return $data;
+}
+
+/**
+ *  Implementation of hook_commit().
+ */
+function cmi_scorm_rte_commit($params = array(), $session = array()) {
+  $query = "SELECT clsid FROM {cmi_learner_session} cls
+              LEFT JOIN {cmi_learner_attempt} cla ON cls.claid = cla.claid
+              LEFT JOIN {cmi_sco} cs ON cla.csid = cs.csid
+              WHERE cla.uid = %d
+                AND cs.nid = %d
+              ORDER BY clsid DESC
+              LIMIT 1";
+  $params['clsid'] = db_result(db_query($query, $params['uid'], $params['nid']));
+
+  if (is_array($session['cmi'])) {
+    foreach ($session['cmi'] as $key => $element) {
+      $dm['cmi'][$key] = module_invoke('cmi_set', $key, $params, $element);
+    }
+  }
+
+  //TODO: Check for a false in $dm['cmi']
+  return TRUE;
+}
+
+/**
+ * comments_from_learner
+ */
+function cmi_set_comments_from_learner($params = array(), $data = array()) {
+  //TODO: Implement
+
+  // Unimplemented Data Model Element
+  scorm_rte_set_error(array('error_code' => 402));
+  return FALSE;
+}
+
+/**
+ * completion_status
+ */
+function cmi_set_completion_status($params = array(), $data = array()) {
+  //TODO: 4.2.4.1: Completion Status Evaluation.
+  if ($data['changed'] == TRUE) {
+    $query = "UPDATE {cmi_learner_attempt} cla
+                LEFT JOIN {cmi_learner_session} cls ON cla.claid = cls.claid
+                SET cla.completion_status = '%s'
+                  WHERE cls.clsid=%d";
+    $success = db_query($query, $data['value'], $params['clsid']);
+    return $success ? TRUE : FALSE;
+  }
+}
+
+/**
+ * The cmi.exit data model element indicates how or why the learner left the SCO.
+ * This value is used to indicate the reason that the SCO was last exited.
+ */
+function cmi_set_exit($params = array(), $data = array()) {
+  if ($data['changed'] == TRUE) {
+    $query = "UPDATE {cmi_learner_session} SET exit_ = '%s' WHERE clsid=%d";
+    $success = db_query($query, $data['value'], $params['clsid']);
+    return $success ? TRUE : FALSE;
+  }
+}
+
+/**
+ * interactions
+ */
+function cmi_set_interactions($params = array(), $data = array()) {
+  //TODO: Implement
+
+  // Unimplemented Data Model Element
+  scorm_rte_set_error(array('error_code' => 402));
+  return FALSE;
+}
+
+/**
+ * learner_preference
+ */
+function cmi_set_learner_preference($params = array(), $data = array()) {
+  global $user;
+  //TODO: Implement
+  // the values for that information are stored in the user object
+
+  // Unimplemented Data Model Element
+  scorm_rte_set_error(array('error_code' => 402));
+  return FALSE;
+}
+
+/**
+ * location
+ */
+function cmi_set_location($params = array(), $data = array()) {
+  if ($data['changed'] == TRUE) {
+    $query = "UPDATE {cmi_learner_attempt} cla
+                LEFT JOIN {cmi_learner_session} cls ON cla.claid = cls.claid
+                SET cla.location = '%s'
+                  WHERE cls.clsid=%d";
+    $success = db_query($query, $data['value'], $params['clsid']);
+    return $success ? TRUE : FALSE;
+  }
+}
+
+/**
+ * objectives
+ */
+function cmi_set_objectives($params = array(), $data = array()) {
+  //TODO: Implement
+
+  // Unimplemented Data Model Element
+  scorm_rte_set_error(array('error_code' => 402));
+  return FALSE;
+}
+
+/**
+ * progress_measure
+ */
+function cmi_set_progress_measure($params = array(), $data = array()) {
+  //TODO: Section 4.2.4.1: Completion Status Evaluation.
+  if ($data['changed'] == TRUE) {
+    $query = "UPDATE {cmi_learner_attempt} cla
+                LEFT JOIN {cmi_learner_session} cls ON cla.claid = cls.claid
+                SET cla.progress_measure = %f
+                  WHERE cls.clsid=%d";
+    $success = db_query($query, $data['value'], $params['clsid']);
+    return $success ? TRUE : FALSE;
+  }
+}
+
+/**
+ * score
+ */
+function cmi_set_score($params = array(), $data = array()) {
+  $query = "SELECT cla.claid FROM {cmi_learner_attempt} cla
+              WHERE cla.uid = %d
+              ORDER BY claid DESC";
+  $params['claid'] = db_result(db_query($query, $params['uid']));
+
+  $query = "SELECT csc.cscid FROM {cmi_score} csc
+              WHERE csc.claid = %d";
+  $params['cscid'] = db_result(db_query($query, $params['claid']));
+
+  $items = array('max', 'min', 'raw', 'scaled');
+  foreach ($items as $item) {
+    if ($data[$item]['changed'] == TRUE) {
+      if ($params['cscid']) {
+        $query = "UPDATE {cmi_score} SET %s = %f WHERE cscid = %d";
+        $success = db_query($query, $item, $data[$item]['value'], $params['cscid']);
+      }
+      else {
+        $query = "INSERT INTO {cmi_score} (claid, '%s') VALUES (%d, %f)";
+        $success = db_query($query, $item, $params['claid'], $data[$item]['value']);
+
+        $query = "SELECT csc.cscid FROM {cmi_score} csc
+                    WHERE csc.claid = %d";
+        $params['cscid'] = db_result(db_query($query, $params['claid']));
+      }
+    }
+  }
+
+  return $success ? TRUE : FALSE;
+}
+
+/**
+ * session_time
+ */
+function cmi_set_session_time($params = array(), $data = array()) {
+  $total_time = 'PT0H0M0S';
+
+  if ($data['changed'] == TRUE) {
+    // Just in case someone uses seconds to measure the duration
+    if (is_numeric($data['value'])) {
+      $data['value'] = cmi_timestamp_to_ISO8601Duration($data['value']);
+    }
+
+    $sql = "SELECT claid FROM {cmi_learner_session} WHERE clsid = %d";
+    $params['claid'] = db_result(db_query($sql, $params['clsid']));
+
+    // Update session time
+    $query = "UPDATE {cmi_learner_session} cls
+                SET cls.session_time = '%s'
+                  WHERE cls.clsid = %d";
+    $success = db_query($query, $data['value'], $params['clsid']);
+
+    // Update attempt time
+    $query = "SELECT cls.session_time FROM {cmi_learner_attempt} cla
+                INNER JOIN {cmi_learner_session} cls ON cls.claid = cla.claid
+                WHERE cla.claid = %d";
+    $result = db_query($query, $params['claid']);
+
+    while ($session = db_fetch_object($result)) {
+      $total_time = cmi_ISO80601Duration_sum($total_time, $session->session_time);
+    }
+
+    // Store total time
+    $query = "UPDATE {cmi_learner_attempt} cla
+                SET cla.total_time = '%s'
+                  WHERE cla.claid = %d";
+    $success = db_query($query, $total_time, $params['claid']);
+    return $success ? TRUE : FALSE;
+  }
+}
+
+/**
+ * success_status
+ */
+function cmi_set_success_status($params = array(), $data = array()) {
+  if ($data['changed'] == TRUE) {
+    $query = "UPDATE {cmi_learner_attempt} cla
+                LEFT JOIN {cmi_learner_session} cls ON cla.claid = cls.claid
+                SET cla.success_status = '%s'
+                  WHERE cls.clsid=%d";
+    $success = db_query($query, $data['value'], $params['clsid']);
+    return $success ? TRUE : FALSE;
+  }
+}
+
+/**
+ * suspend_data
+ */
+function cmi_set_suspend_data($params = array(), $data = array()) {
+  if ($data['changed'] == TRUE) {
+    $query = "UPDATE {cmi_learner_attempt} cla
+                LEFT JOIN {cmi_learner_session} cls ON cla.claid = cls.claid
+                SET cla.suspend_data = '%s'
+                  WHERE cls.clsid=%d";
+    $success = db_query($query, $data['value'], $params['clsid']);
+    return $success ? TRUE : FALSE;
+  }
+}
+
+/**
+ * Helper functions
+ */
+
+/**
+ * Extract data model element from data model
+ */
+function dmi_dm_extract_value($name) {
+  $data = cmi_dm();
+  $keys = explode('.', $name);
+
+  for ($i=0; $i<count($keys); $i++) {
+    // Reduce to the needed
+    $data = $data[$keys[$i]];
+  }
+
+  return $data;
+}
+
+/**
+ * Convert from ISO 8601 duration to timestamp
+ *
+ * @param string ISO 8601 $duration
+ *    P[yY][mM][dD][T[hH][nM][s[.s]S]]
+ * @param integer $precision
+ *    1 = seconds (s), 10 = deciseconds (ds), 100 = centiseconds (cs), 1000 = milliseconds (ms)
+ * @return integer $timestamp
+ *    An integer representing a duration in s, ds, cs or ms
+ *    depending on the given precision
+ */
+function cmi_ISO8601Duration_to_timestamp($duration, $precision = 100) {
+  $pattern = "/P(\\d+Y)?(\\d+M)?(\\d+D)?(T?(\\d+H)?(\\d+M)?(\\d+([.]\\d+)?S)?)?/";
+  preg_match($pattern, $duration, $matches);
+
+  $timestamp = $timestamp + ($matches[1] * $precision * CMI_YEAR);
+  $timestamp = $timestamp + ($matches[2] * $precision * CMI_MONTH);
+  $timestamp = $timestamp + ($matches[3] * $precision * CMI_DAY);
+  $timestamp = $timestamp + ($matches[5] * $precision * CMI_HOUR);
+  $timestamp = $timestamp + ($matches[6] * $precision * CMI_MINUTE);
+  $timestamp = $timestamp + ($matches[7] * CMI_SECOND);
+
+  return $timestamp;
+}
+
+
+/**
+ * Convert from timestamp to ISO 8601 duration
+ *
+ * @param integer $timestamp
+ *    An integer representing a duration in s, ds, cs or ms
+ *    depending on the given precision
+ * @param integer $precision
+ *    1 = seconds (s), 10 = deciseconds (ds), 100 = centiseconds (cs), 1000 = milliseconds (ms)
+ * @param boolean $precise
+ *    TRUE = ommit yY and mM for higher precision
+ *    FALSE = use approximate value to calculate yY and mM
+ * @return string ISO 8601 duration
+ *    P[yY][mM][dD][T[hH][nM][s[.s]S]]
+ */
+function cmi_timestamp_to_ISO8601Duration($timestamp, $precision = 100, $precise = TRUE) {
+  $ISO8601 = 'P';
+  $duration = array(
+    'yY' => 0, 'mM' => 0, 'dD' => 0, 'hH' => 0, 'nM' => 0, 'sS' => 0,
+  );
+
+  $remainder = $timestamp;
+  if (!$precise) {
+    $duration['yY'] = floor($remainder / ($precision * CMI_YEAR));
+    $remainder      = $remainder - ($duration['yY']  * ($precision * CMI_YEAR));
+    $duration['mM'] = floor($remainder / ($precision * CMI_MONTH));
+    $remainder      = $remainder - ($duration['mM']  * ($precision * CMI_MONTH));
+  }
+  $duration['dD'] = floor($remainder / ($precision * CMI_DAY));
+  $remainder      = $remainder - ($duration['dD']  * ($precision * CMI_DAY));
+  $duration['hH'] = floor($remainder / ($precision * CMI_HOUR));
+  $remainder      = $remainder - ($duration['hH']  * ($precision * CMI_HOUR));
+  $duration['nM'] = floor($remainder / ($precision * CMI_MINUTE));
+  $remainder      = $remainder - ($duration['nM']  * ($precision * CMI_MINUTE));
+  $duration['sS'] = round($remainder / (CMI_SECOND), strlen($precision - 1));
+
+  $optional = array('yY', 'mM', 'dD');
+  foreach ($duration as $key => $value) {
+    if ((!in_array($key, $optional) || $value != 0)) {
+      $ISO8601 .= ($key == 'hH' ? 'T' : '') . $value . substr($key, 1, 1);
+    }
+  }
+  return $ISO8601;
+}
+
+/**
+ * Sum up two ISO 8601 durations
+ *
+ * @param string ISO 8601 $duration1
+ *    P[yY][mM][dD][T[hH][nM][s[.s]S]]
+ * @param string ISO 8601 $duration2
+ *    P[yY][mM][dD][T[hH][nM][s[.s]S]]
+ * @param integer $precision
+ *    1 = seconds (s), 10 = deciseconds (ds), 100 = centiseconds (cs), 1000 = milliseconds (ms)
+ * @param boolean $precise
+ *    TRUE = ommit yY and mM for higher precision
+ *    FALSE = use approximate value to calculate yY and mM
+ * @return integer $timestamp
+ *    An integer representing a duration in s, ds, cs or ms
+ *    depending on the given precision
+ */
+function cmi_ISO80601Duration_sum($duration1, $duration2, $precision = 100, $precise = TRUE) {
+  $timestamp = cmi_ISO8601Duration_to_timestamp($duration1, $precision) + cmi_ISO8601Duration_to_timestamp($duration2, $precision);
+  return cmi_timestamp_to_ISO8601Duration($timestamp, $precision, $precise);
+}

@@ -1,0 +1,2927 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <!--
+  Copyright 2005-2007 Claude Ostyn.
+
+  This work is licensed under a
+  Creative Commons Attribution-ShareAlike 2.5 License.
+  href="http://creativecommons.org/licenses/by-sa/2.5/
+
+  USE AT YOUR OWN RISK.
+  THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+  ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+  TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+  THE AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+  <meta http-equiv="Content-Type" content=
+  "text/html; charset=us-ascii" />
+  <meta name="generator" content="Claude" />
+  <meta name="version" content="1.99.6.beta" />
+  <meta name="description" content=
+  "Universal test SCO to inspect and diagnose a SCORM runtime environment." />
+  <meta name="copyright" content=
+  "Copyright (c) 2005-2007 Claude Ostyn" />
+
+  <title>Claude's SCORM Diagnostic SCO</title>
+  <!-- Release notes
+    1.99.7.beta - 2007-03-24
+                  Code changes to enhance performance and maintaiability.
+                  Added option to turn off logging.
+                  Special thanks to Jonathan Rogivue.
+    1.99.6.beta - 2007-02-16
+                  Correct identification of the selected API when selecting a
+                  SCORM 1.2 API object because it is closer than a SCORM 2004 in
+                  a more distant window.
+                  Fixed setting of session time in SCORM 1.2.
+    1.99.5.beta - 2007-01-19
+                  Clarify some wording and diagnostics in RTE Info tab.
+    1.99.4.beta - 2006-10-27
+                  Fixes typo in function names for GetDiagnostic.
+                  Special thanks to Kerstin Kohl.
+  -->
+<script type="text/javascript">
+//<![CDATA[
+
+var gsVERSION = "1.99.7.beta";
+
+// ========= Help string =======//
+var gsHELPTEXT = '' +
+    ' \n<div class="Caption">SCORM 1.2 and SCORM 2004 Diagnostic SCO by Claude Ostyn' +
+    '\n<\/div>\n' +
+    '<p><small>' +
+    '&copy; 2005-2007 Claude Ostyn &nbsp;' +
+    'Version&nbsp;' + gsVERSION + '<\/small><\/p>\n' +
+    '<h3 class="Caption">Synopsis<\/h3><p>' +
+    'This file can be launched as a SCO to inspect and diagnose a SCORM ' +
+    'runtime environment. It consists of a single HTML file ' +
+    'that, when launched, recognizes whether it is running in a SCORM ' +
+    'environment. It looks first for a SCORM 2004 API object, and if that ' +
+    'fails it looks for a SCORM 1.2 API object. ' +
+    '<h3 class="Caption">Using the diagnostic SCO<\/h3>' +
+    '<p class="Caption">Common features<\/p>\n' +
+    '<p>The color scheme of the diagnostic SCO was chosen to help distinguish it ' +
+    'from any window or frame displayed by the runtime environment.<\/p>\n' +
+    '<p>The log frame at the bottom of the SCO shows the results of ' +
+    'exercising the API either manually through the API Prodder or ' +
+    'automatically through a script.<\/p>\n' +
+    '<p>The "icon" area to the left of the log frame shows the current status ' +
+    'as follows:<\/p><ul>' +
+    '<li>API found - Red if no API, green is an API was found. If an API was found, ' +
+    'the version is shown as "1.2" or "2004".<\/li>\n' +
+    '<li>Communication status. Shown as a red ' +
+    '"<span class="highlightError">&gt;X&lt;<\/span>" ' +
+    'if there is currently no communication session, and as a green ' +
+    '"<span class="highlightNoError">&gt;=&lt;<\/span>" if a communication session ' +
+    'is currently in progress<\/li>\n' +
+    '<li>Error status. This appears only if an API was found. Shows as green ' +
+    '"<span class="highlightNoError">OK<\/span>" ' +
+    'if the last call to the API resulted in no error, or as red ' +
+    'error <span class="highlightError">number<\/span> ' +
+    'if the last call to the API resulted in an error.<\/li><\/ul>\n' +
+    '<p class="Caption">RTE Info<\/p>\n' +
+    '<p>This tab provides information about the runtime context, ' +
+    'including information about the window configuration and API object(s).' +
+    '<p class="Caption">Scripted test<\/p>\n' +
+    '<p>You can run a test script. This is a pre-scripted series of API calls to ' +
+    'execute automatically. Click the Help button in the Scripted Test ' +
+    'view for more information about that feature.<\/p>\n' +
+    '<p class="Caption">API Prodder<\/p>\n' +
+    '<p>Use the API prodder to test the API manually. You can initialize and ' +
+    'terminate a communication session by calling the SCORM API through a button click ' +
+    'and you can exercise the API by trying SetValue and GetValue with ' +
+    'the parameters appropriate for the version of SCORM that was detected.<\/p>\n' +
+    '<p>For convenience, if you select a well formed Get or Set statement in the rolling ' +
+    'log at the bottom of the window, the selected text will automatically get copied ' +
+    'into the GetValue and SetValue fields in the form. ' +
+    'This feature is currently available in IE only.<\/p>\n' +
+    '<h3 class="Caption">Limitations<\/h3>\n' +
+    '<p>Because of browser security, you cannot save the content of the log directly. ' +
+    'However, you can use the following method with most browsers:<\/p>\n' +
+    '<ol><li>Click anywhere in the log frame<\/li>\n' +
+    '<li>Press Ctrl+A on the keyboard<\/li>\n' +
+    '<li>Press Ctrl+C on the keyboard<\/li>\n' +
+    '<li>You can now paste the log into any text editor or word processing application.<\/li>\n' +
+    '<\/ol>' +
+    '<p>This application does not meet some Accessibility requirements ' +
+    'because of the prohibitive cost and difficulty of doing so in ' +
+    'a diagnostic application that requires direct observation of ' +
+    'dynamically changing content. If you ' +
+    'have special accessibility requirements and you can arrange for funding ' +
+    'of the development of a fully accessible version, please let us know.<\/p>\n' +
+    '<h3 class="Caption">Feedback<\/h3><p>' +
+    'Feedback is highly appreciated so this tool can ' +
+    'get improved and to prove that it is worth making it available to the ' +
+    'SCORM community. Please let us know how you use it, what problem it ' +
+    'helped you solve, ' +
+    'problems or bugs you discovered, and so on. Please send your feedback ' +
+    'to <a href="mailto:tools@ostyn.com?Subject=proddingSCO%20' +
+    gsVERSION +
+    '">tools@ostyn.com<\/a>.<br />\nFor the most current version of this utility, ' +
+    'see <a href="http://www.ostyn.com/resources.htm" ' +
+    'onclick="window.open(this.href,\'_blank\');return false;">\n' +
+    'http://www.ostyn.com/resources.htm<\/a><\/p>\n' +
+    '<h3 class="heavy"><a name="terms"><\/a>License and terms of use<\/h3> ' +
+    '<p><a rel="license" ' +
+    'href="http://creativecommons.org/licenses/by-sa/2.5/" ' +
+    'onclick="window.open(this.href,\'_blank\');return false;">\n' +
+    '<img alt="Creative Commons License" align="left" border="0" ' +
+    'hspace="10" vspace="5" ' +
+    'src="http://creativecommons.org/images/public/somerights20.png"/><\/a> ' +
+    'This work is licensed under a <a rel="license" ' +
+    'href="http://creativecommons.org/licenses/by-sa/2.5/" ' +
+    'onclick="window.open(this.href,\'_blank\');return false;">\n' +
+    'Creative Commons ' +
+    'Attribution-ShareAlike 2.5 License<\/a>.<\/p>\n' +
+    '<p>USE AT YOUR OWN RISK.<br />\n' +
+    'THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR ' +
+    'IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, ' +
+    'FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE ' +
+    'AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER ' +
+    'LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, ' +
+    'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE ' +
+    'SOFTWARE.<\/p>\n';
+
+///////////// Various prompts and other localizable items /////////////
+
+/// General view features
+var gsPROMPT_FORM = "Choose a view";
+var gsCHOICE_RTEINFO = "RTE Info";
+var gsCHOICE_APIPRODDER = "API Prodder";
+var gsCHOICE_OPTIONS = "Options";
+var gsCHOICE_RUNSCRIPT = "Scripted test";
+var gsCHOICE_HELP = "Help";
+var gsRESET = "RESET";
+var gsERROR_NUMBER_LABEL = "Error number:";
+var gsNOERROR = "No error";
+var gsERROR = "Error";
+var gsERROR_STRING_LABEL = 'Error String:';
+var gsDIAGNOSTIC_LABEL = 'Diagnostic:';
+var gsLOG_TOO_BIG_PROMPT = 'Log is getting too big. Discarding early entries.';
+var gsLOG_HERE  = '(Log will be displayed here)';
+var gsCHKBOXLOG = "Log";
+
+/// Runtime context inspection features
+
+var gsAPI_INFO_HEADING = 'API Information';
+var gsAPI_FOUND_LABEL = 'API found:';
+var gsAPI_USED_LABEL = 'API chosen by this SCO:';
+var gsAPI_API_VERSION_LABEL = 'Version:';
+var gsAPI_FOUND_MIXT = 'SCORM 2004 and SCORM 1.x API objects found.';
+var gsAPI_SEE_DIAGRAM = 'See the diagram below for more information.';
+var gsAPI_2004_USED = 'The diagnostic SCO chose the SCORM 2004 API.';
+var gsAPI_FOUND_MULTIPLE = 'Multiple API objects found.';
+
+var gsFOUND_NO_API = 'No SCORM API was detected using the '
+    + 'standard API discovery algorithm. '
+    + 'Either no API is available, or it is '
+    + 'not configured correctly in this runtime environment.';
+var gsAPI_COMM_ACTIVE = 'A communication session with the API is currently in progress.';
+var gsAPI_COMMINACTIVE = 'No communication session with the API is currently in progress.';
+var gsAPI_COMM_FINISHED = 'The communication session with the API has been terminated and another session cannot be initiated until the SCO is relaunched by the runtime environment.';
+var gsCAUGHT_ERROR_IN_API_FUNC = 'Error detected in API implementation of #1. ' +
+    'The reported return value is probably meaningless.';
+
+var gsWindowClosingINFO_HEADING = 'Closing of the window by the SCO';
+var gsNOT_ALLOWED_TO_CLOSE = 'A SCO launched in this environment '
+    + 'is not allowed to close its window because it '
+    + 'was launched in a frame that is part of another window. '
+    + 'That window probably belongs to the runtime environment. '
+    + 'If the SCO closes this or any other window that is part of the '
+    + 'runtime environment, it may lead to loss '
+    + 'of data or premature termination of the learning '
+    + 'management session.';
+var gsALLOWED_TO_CLOSE = 'A SCO launched in this environment '
+    + 'can safely close its window because it '
+    + 'was launched in a top level window and closing '
+    + 'the window should have no adverse effect on the '
+    + 'runtime environment.';
+var gsWINDOW_NO_API_NO_CLOSE_INFO = 'Since no SCORM environment is available, '
+    + 'it is impossible '
+    + 'to determine whether it would be safe or not for '
+    + 'this SCO to close its window.';
+
+/// Window table stuff
+var gsWINDOW_CONTEXT_DIAGRAM_HEADING = 'Window context'
+var gsWINDOW_CONTEXT_DETAILS_HEADING = "Window analysis";
+var gsOPENER = "Opener";
+var gsPARENT = "Parent";
+var gsSCORM_API_OBJECT = "SCORM API Object";
+var gsNOT_AVAILABLE = "(Not available)";
+var gsWINDOW_NAME = 'Window name';
+var gsNAME_NOT_AVAILABLE = "(Name not available)";
+var gsTITLE_NOT_AVAILABLE = "(Title not available)";
+var gsAPI_OBJECT__WHICH = "SCORM&nbsp;#1 API&nbsp;object"; // #1 is a placeholder
+var gsFRAME_WINDOW = "(Frame)";
+var gsTOP_LEVEL_WINDOW = "(Top level window)";
+var gsTOP_LEVEL = 'Top level';
+var gsWINDOW_TITLE = 'Window title';
+var gsWINDOW_URL = 'URL of window content';
+var gsNONE = '(none)';
+var gsWRONG_DOMAIN = '(foreign domain)';
+var gsACCESS_DENIED = '(N/A - access denied)';
+var gsWINDOW_TABLE_EXPLANATION = '#1 is the window or frame '
+ + 'in which this SCO was launched.<br />\n'
+ + 'At least one window is always top level (does not have a parent).<br />'
+ + 'If more than one API object was found, only the first one '
+ + '(closest to the SCO in the table) may be used by the SCO.'
+
+/// API Prodder features
+var gsERROR_LABEL = 'Error:';
+var gsBTN_GET_ERROR_INFO = 'Get error info';
+var gsNO_ERROR_DETAIL_WITHOUT_API = 'No SCORM API - Info not available';
+var gsRESULT_WILL_APPEAR_HERE = '(Result will appear here)';
+var gsENTER_VALUE_TO_SET_HERE = 'Enter value to set here';
+var gsENTER_NAME_OF_DATA_ELEMENT_HERE = 'Enter name of data element here';
+//var gsSessionTimeLabel = 'Session&nbsp;time:';
+var gsMARK_SESSION_TIME_LABEL = 'SetValue&nbsp;session&nbsp;time:';
+var gsERROR_LEGEND = 'Error';
+var gsSESSION_LEGEND = 'Session';
+
+/// Automated testing features
+var gsAUTOMATED_SCRIPT = "Automated script";
+var gsSCRIPT_INTERVAL_LABEL = "Interval between calls:";
+var gsSCRIPT_SRC_LEGEND = "Script";
+var gsSCRIPT_DEFAULT_TEXT = "Enter or paste script here. See help for instructions.";
+var gsSCRIPT_INTERVAL_ERROR = "The interval value must be a positive integer (0 or higher)";
+var gsSCRIPT_ERROR_NOT_MAKING_CALL = 'SCRIPT ERROR -- did not call the RTE:';
+var gsSCRIPT_EMPTY_ERROR = "The script cannot be empty.";
+var gsSCRIPT_STARTED = "Script test started.";
+var gsSCRIPT_PAUSED = "Script test paused.";
+var gsSCRIPT_FINISHED = "Script test finished.";
+var gsSCRIPT_CANCELED = "Script test canceled.";
+var gsBTN_DEMO_SCRIPT = "Demo Script";
+var gsBTN_DOWNLOAD_SCRIPT = "Download";
+var gsBTN_HELP_RUN_SCRIPT = "Help"
+var gsBTN_RUN_SCRIPT = "Play";
+var gsBTN_STEP_SCRIPT = "Step";
+var gsBTN_PAUSE_SCRIPT = "Pause";
+var gsBTN_RESUME_SCRIPT = "Resume";
+var gsBTN_CANCEL_SCRIPT = "Stop";
+var gsTEST_HELP_PART_1 = 'To run an automated API test, enter or paste one or more ' +
+    'API calls in the Script box, one call per line. ' +
+    'The calls will be executed one at a time, with the ' +
+    'delay you specify between each call. The results ' +
+    'will be displayed in the log below. ' +
+    'The calls must be in the same format as if they were ' +
+    'in a JavaScript statement, for example:';
+var gsTEST_HELP_PART_2 = 'The demo button provides a default script so you can ' +
+    'test the automated scripting feature. ';
+var gsRUN_SCRIPT_NONSENSE_WITHOUT_API = 'Since no API is present, '
+ + 'the log resulting from running the script will be nonsense.';
+var gsPROMPT_FOR_SCRIPT_URL =
+ 'Enter the URL of a test script to use. '
+ + 'The URL must point to a text file.\n'
+ + 'Enter RESET to RESET to default URL.'
+var gsWARN_ABOUT_XHOST_DOWNLOAD = 'Downloading the script from another '
+ + 'server is subject to cross-host security restrictions. If you download '
+ + 'the script from a server other than the one this test SCO is coming from, '
+ + 'your browser will probably show a warning and may disallow the operation '
+ 'altogether.'
+var gsSCRIPT_DOWNLOAD_ERROR_MSG = 'Unable to perform remote download of ' +
+    'a test script from URL "#1".'
+var gsEXPLAIN_DIFF_DOMAIN = 'Your browser may have denied the download ' +
+    'as a security measure if you ' +
+    'are trying to retrieve from a different server.';
+var gsSCRIPT_ERROR_NO_API = 'There is no SCORM runtime API object to call.';
+var gsBACK_TO_SCRIPT_START = 'End of script. Restart at the beginning?';
+
+// Options stuff
+var gsCOOKIEOPTION = "Cookie";
+var gsCHKBOXCOOKIE = "Allow use of cookie to remember some settings.";
+var gsADVANCEDOPTION = "Advanced";
+var gsCHKBOXDOWNLOADSCRIPTS = "Enable download button for test scripts.";
+
+//////////// End of localizable stuff //////////////////
+
+//////////// Begin generally Configurable stuff /////////////
+
+var gbUseCookie = false;
+var gbUseLog = true;
+var gbAllowDownloadScripts = false;
+var gsDefaultTestScriptURL = "http://www.ostyn.com/test/scripts/scorm2004/diag/1.txt";
+
+var gnBACKGROUND_RED = 224;
+var gnBACKGROUND_GREEN = 240;
+var gnBACKGROUND_BLUE = 192;
+
+var gsCOLOR_OK = '#40ff40';
+
+//////////// End of generally Configurable stuff /////////////
+
+var gsSCORMKEYWORDINITIALIZE = 'Initialize';
+var gsSCORMKEYWORDTERMINATE = 'Terminate';
+var gsSCORMKEYWORDSETVALUE = 'SetValue';
+var gsSCORMKEYWORDGETVALUE = 'GetValue';
+var gsSCORMKEYWORDGETLASTERROR = 'GetLastError';
+var gsSCORMKEYWORDGETERRORSTRING = 'GetErrorString';
+var gsSCORMKEYWORDGETDIAGNOSTIC = 'GetDiagnostic';
+
+////////// Script loading and playback control vars //////////
+var gsOldScriptURL = "";
+var gsLastTriedScriptURL = "";
+var gbAllowDownloadScripts = false;
+var gbWarnedAboutXDomainDownload = false;
+var gnDefaultScriptDelay = 10;
+var gnScriptDelay = 1;
+var gsScript = "";
+var gaScript = null;
+var giScript = 0;
+var gTimerScript = null;
+
+////////// SCORM API Session Management vars //////////
+var gAPIObj = null;
+var gAPIVersion = null;
+var gAPI1484version = null;
+var gAPIWnd = null;
+var gbAPIInSession = false;
+var gbAPISessionFinished = false;
+var gnAPIError = 0;
+
+var gnStartDateTimeMilliSecs = 0;
+var gTimerSessionTime = null;
+var gbDisplaySessionTime = true;
+var gbSessionTimeFrozen = false;
+
+/////////// Window info collection /////////////
+var gaWindowInfo = null;
+
+/////////// Logging /////////////
+
+var gsLog = "";
+var gsLOG_COLORIZE_RED = '<font color=#ff0000>#1<\/font>';
+var gbLogOverwrite = true; // Until we get something meaningful, overwrite
+
+//////////// Cookie control flag ////////////
+var gbUseCookie = false;
+
+//// Generic cookie functions (from Claude's Saranjan scripts)
+
+var gCookieExpDate = new Date ();
+
+// Mac date bug fix
+function FixCookieDate (date) {
+  var base = new Date(0);
+  var skew = base.getTime(); // dawn of (Unix) time - should be 0
+  if (skew > 0)  // Except on the Mac - ahead of its time
+    date.setTime (date.getTime() - skew);
+}
+
+function SetCookie (name,value,expires,path,domain,secure) {
+// first 2 params are required, others optional
+  //if (!(domain)) { domain = "Saranjan"; }
+  if (!(expires)) { expires = gCookieExpDate ;}
+  document.cookie = name + "=" + escape (value) +
+    ((expires) ? "; expires=" + expires.toGMTString() : "") +
+    ((path) ? "; path=" + path : "") +
+    ((domain) ? "; domain=" + domain : "") +
+    ((secure) ? "; secure" : "");
+}
+
+function DeleteCookie (name,path,domain) {
+  if (GetCookie(name)) {
+    document.cookie = name + "=" +
+      ((path) ? "; path=" + path : "") +
+      ((domain) ? "; domain=" + domain : "") +
+      "; expires=Thu, 01-Jan-70 00:00:01 GMT";
+  }
+}
+
+function GetCookie(nam) {
+// Parses document's cookie for a named value
+// Weird coding supports both IE6 and Mozilla
+  var a = document.cookie.split(";");
+  var aCk = null;
+  for (i=0; i<a.length;i++)
+  {
+    if (a[i].indexOf("=") < 0)
+    {
+      continue;
+    }
+    aCk = a[i].split("=");
+    if (trim(aCk[0]) == nam)
+    {
+      if (aCk.length > 0)
+      {
+        return unescape(aCk[1]);
+      }
+      else
+      {
+        break;
+      }
+    }
+  }
+  return "";
+}
+
+function GetCookieList()
+{
+  // Returns an array of cookie names
+  // IE uses the form 'name;' for empty cookies,
+  // while moz uses the form 'name=;'
+  var a = document.cookie.split(";");
+  var aNams = new Array();
+  for (i=0; i<a.length;i++)
+  {
+    if (a[i].indexOf("=") > -1)
+    {
+      aNams[aNams.length] = trim((a[i].split("="))[0]);
+    }
+    else
+    {
+      aNams[aNams.length] = trim(a[i]);
+    }
+  }
+  return aNams.sort(compareStr);
+}
+
+function ClearAllCookies(path, domain)
+{
+  var aNams = GetCookieList();
+  for (i=0;i<aNams.length;i++)
+  {
+    document.cookie = aNams[i] + "=" +
+      ((path) ? "; path=" + path : "") +
+      ((domain) ? "; domain=" + domain : "") +
+      "; expires=Thu, 01-Jan-70 00:00:01 GMT";
+  }
+}
+
+FixCookieDate (gCookieExpDate); // Correct for Mac date bug - call only once for given Date object!
+
+// Arbitrary expiration date set to 1 year for this app.
+gCookieExpDate.setTime (gCookieExpDate.getTime() + (365 * 24 * 60 * 60 * 1000)); // 1 * 24 hrs from now
+
+function clearCookies(aNames) {
+  if (aNames) {
+    for (i=0;i<aNames.length;i++){
+      DeleteCookie(aNames[i])
+    }
+  }
+}
+
+// End of generic cookie functions
+
+///////// Initializations from cookie
+
+function InitFromCookies()
+{
+  gbUseCookie = (GetCookie("CookieOK") == "true");
+  gbAllowDownloadScripts = (GetCookie("DownloadScriptsOK") == "true");
+  gsOldScriptURL = GetCookie("ScriptURL");
+}
+
+function SetAllowCookie(bAllow)
+{
+  gbUseCookie = (bAllow == true);
+  if (gbUseCookie)
+  {
+    SetCookie("CookieOK", gbUseCookie);
+  }
+  else
+  {
+    ClearAllCookies();
+  }
+}
+
+function SetActivateLogging(bAllow)
+{
+  var oldAllow = gbUseLog;
+  gbUseLog = (bAllow != false); // true by default
+  if (gbUseCookie)
+  {
+    SetCookie("CookieOK", gbUseCookie)
+    SetCookie("Logging", gbUseLog);
+  }
+  var doc = wndForms.document;
+  if (doc)
+  {
+    try
+    {
+      doc.getElementById("LogOKScript").checked = gbUseLog;
+      doc.getElementById("LogOKProd").checked = gbUseLog;
+      doc.getElementById("LogOKOptions").checked = gbUseLog;
+    }
+    catch (e)
+    {
+       // This will fail gracefully if called before the initialization is complete
+    }
+  }
+}
+
+
+function SetAllowScriptDownload(bAllow)
+{
+  var oldAllow = gbAllowDownloadScripts;
+  gbAllowDownloadScripts = (bAllow == true);
+  if (gbUseCookie)
+  {
+    SetCookie("CookieOK", gbUseCookie)
+    SetCookie("DownloadScriptsOK", gbAllowDownloadScripts);
+  }
+  if (oldAllow != gbAllowDownloadScripts)
+  {
+    //alert("Calling ShowScriptDownloadButton " + gbAllowDownloadScripts);
+    ShowScriptDownloadButton(gbAllowDownloadScripts)
+  }
+}
+
+
+
+//////////// AJAX to retrieve test scripts from a server /////////
+
+var gXmlHttpReq;
+
+function PromptForScriptUrl()
+{
+  if (gsOldScriptURL == "")
+  {
+    gsOldScriptURL = gsDefaultTestScriptURL;
+  }
+  var s = prompt(gsPROMPT_FOR_SCRIPT_URL, gsOldScriptURL);
+  if ((s) && (s.length > 0))
+  {
+    if (trim(s).toUpperCase() == "RESET")
+    {
+      s = gsDefaultTestScriptURL;
+      gsOldScriptURL = s;
+    }
+    gsLastTriedScriptURL = s;
+
+    if (!gbWarnedAboutXDomainDownload)
+    {
+      // Here TBD check whether this is a foreign domain
+      // If it is, warn that this may not work.
+      var url1 = window.location.href.substr(7);
+      var p1 = url1.indexOf("/");
+      if (p1 > 0) url1 = url1.substr(0,p1);
+      var url2 = s.substr(7);
+      p1 = url2.indexOf("/");
+      if (p1 > 0) url2 = url2.substr(0,p1);
+      if (url2 != url1)
+      {
+        alert(gsWARN_ABOUT_XHOST_DOWNLOAD);
+        gbWarnedAboutXDomainDownload = true;
+      }
+    }
+    LoadRemoteTestScript(s);
+  }
+}
+
+function LoadRemoteTestScript(url)
+{
+  var OK = true;
+  var sErr = null;
+  // Mozilla or IE use different ways to instantiate xmlHTTP object
+  if (window.XmlHttpRequest)
+  {
+    gXmlHttpReq = new XmlHttpRequest();
+    gXmlHttpReq.onreadystatechange = processReqChange;
+    try
+    {
+      gXmlHttpReq.open("GET", url, true);
+    }
+    catch (e)
+    {
+      sErr = e.name + ': ' + e.message;
+      OK = false;
+    }
+    if (OK)
+    {
+      try
+      {
+        gXmlHttpReq.send(null);
+      }
+      catch (e)
+      {
+        OK = false;
+        sErr = e.name + ': ' + e.message;
+      }
+    }
+  }
+  else if (window.ActiveXObject)
+  {
+    gXmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
+    if (gXmlHttpReq)
+    {
+      gXmlHttpReq.onreadystatechange = processReqChange;
+      try
+      {
+        gXmlHttpReq.open("GET", url, true);
+      }
+      catch(e)
+      {
+        sErr = e.name + ': ' + e.message;
+        OK = false;
+      }
+      if (OK)
+      {
+        try
+        {
+          gXmlHttpReq.send();
+        }
+        catch (e)
+        {
+          sErr = e.name + ': ' + e.message;
+          OK = false;
+        }
+      }
+    }
+  }
+  if (!OK)
+  {
+    // Firefox is not quite complete yet here
+    if (sErr == "undefined: undefined")
+    {
+      sErr = gsEXPLAIN_DIFF_DOMAIN;
+    }
+    sErr = pseudoPrintf(gsSCRIPT_DOWNLOAD_ERROR_MSG, url) + '\n\n' + sErr;
+    wndForms.document.getElementById("ScriptSource").value = sErr;
+  }
+}
+
+
+function processReqChange()
+{
+  // only if gXmlHttpReq shows "loaded"
+  if (gXmlHttpReq.readyState == 4)
+  {
+    if (gXmlHttpReq.status == 200)
+    {
+      var s = trim(gXmlHttpReq.responseText);
+      if (s.length = 0)
+      {
+        alert("The file was empty or contained only illegal characters.")
+        return;
+      }
+      else if (s.length > 32767)
+      {
+        alert("Sorry, the maximum length for a script is 32K");
+        return;
+      }
+      else if (s.indexOf("<") == 0)
+      {
+        alert("Sorry, XML or HTML files are not acceptable.");
+        return;
+      }
+      else if (IsUnsafeString(s))
+      {
+        alert("Sorry, unsafe characters detected in file. Too dangerous to continue.");
+        //window.top.close();
+        return;
+      }
+      wndForms.document.getElementById("ScriptSource").value = gXmlHttpReq.responseText;
+      if (gbUseCookie) SetCookie("ScriptURL", gsLastTriedScriptURL);
+    }
+    else
+    {
+      var s = pseudoPrintf(gsSCRIPT_DOWNLOAD_ERROR_MSG, gsLastTriedScriptURL)
+       + "\n\n" + gXmlHttpReq.status + ' ' + gXmlHttpReq.statusText;
+      wndForms.document.getElementById("ScriptSource").value = s;
+    }
+  }
+}
+
+////////// End AJAX stuff ////////
+
+
+/// Utility functions ///
+function trim(str)
+{
+  if (str == null) return "";
+  return str.replace(/^\s*(\b.*\b|)\s*$/, "$1");
+}
+
+function compareStr(sA,sB)
+{
+  if (sA > sB) return 1;
+  if (sA < sB) return -1;
+  return 0;
+}
+
+
+function IsUnsafeString(s)
+{
+  // True if any char < "!" that is not tab, CR or LF
+  var c;
+  for (var i=0;i<s.length;i++)
+  {
+    c = s.charCodeAt(i);
+    if ((c < 32)&&((c!=9)&&(c!=10)&&(c!=13)))
+    {
+      alert(c);
+      return true;
+    }
+  }
+  return false;
+}
+
+function pseudoPrintf(s)
+{
+  // Replace placeholders in the form #1 #2 etc. in s with
+  // corresponding strings passed as extra arguments
+  if (arguments.length < 2) return s;
+  var re = new RegExp("x1", "g");
+  for (var i=arguments.length-1;i>0;i--)
+  {
+    re.compile("#" + i,"g");
+    s = s.replace(re, arguments[i] + "");
+  }
+  return s;
+}
+
+//// Utility functions for timekeeping
+
+function SetInitialSessionTime()
+{
+  gnStartDateTimeMilliSecs = (new Date()).getTime();
+}
+
+function GetFormattedSessionTime()
+{
+  var nCs = Math.round(((new Date()).getTime() - gnStartDateTimeMilliSecs)/10);
+  var s = ((gAPIVersion == "SCORM 2004")?
+      centisecsToISODuration(nCs):
+      centisecsToSCORM12Duration(nCs));
+  return s;
+}
+
+function StartTickleSessionTime()
+{
+  if (gbDisplaySessionTime)
+  {
+    TickleSessionTime();
+    gTimerSessionTime = setInterval("TickleSessionTime()", 777);
+  }
+}
+
+function StopTickleSessionTime()
+{
+  if (gTimerSessionTime)
+  {
+    clearInterval(gTimerSessionTime);
+  }
+  gTimerSessionTime = null;
+}
+
+function TickleSessionTime()
+{
+  if ((!gbDisplaySessionTime) || (gbSessionTimeFrozen)) return;
+  var obj = wndForms.document.getElementById("SessionTimeDisplay");
+  if (obj)
+  {
+    obj.innerHTML = pseudoPrintf('<a href="'
+      + 'JavaScript:window.parent.TestSetValueSessionTime()">'
+      + '#1 #2<\/a>',
+      gsMARK_SESSION_TIME_LABEL,GetFormattedSessionTime());
+  }
+}
+
+function centisecsToISODuration(n, bPrecise)
+{
+  // Note: SCORM and IEEE 1484.11.1 require centisec precision
+  // Parameters:
+  // n = number of centiseconds
+  // bPrecise = optional parameter; if true, duration will
+  // be expressed without using year and/or month fields.
+  // If bPrecise is not true, and the duration is long,
+  // months are calculated by approximation based on average number
+  // of days over 4 years (365*4+1), not counting the extra days
+  // for leap years. If a reference date was available,
+  // the calculation could be more precise, but becomes complex,
+  // since the exact result depends on where the reference date
+  // falls within the period (e.g. beginning, end or ???)
+  // 1 year ~ (365*4+1)/4*60*60*24*100 = 3155760000 centiseconds
+  // 1 month ~ (365*4+1)/48*60*60*24*100 = 262980000 centiseconds
+  // 1 day = 8640000 centiseconds
+  // 1 hour = 360000 centiseconds
+  // 1 minute = 6000 centiseconds
+  var str = "P";
+  var nCs=n;
+  var nY=0, nM=0, nD=0, nH=0, nMin=0, nS=0;
+  n = Math.max(n,0); // there is no such thing as a negative duration
+  var nCs = n;
+  // Next set of operations uses whole seconds
+  if (bPrecise == true)
+  {
+    nD = Math.floor(nCs / 8640000);
+  }
+  else
+  {
+    nY = Math.floor(nCs / 3155760000);
+    nCs -= nY * 3155760000;
+    nM = Math.floor(nCs / 262980000);
+    nCs -= nM * 262980000;
+    nD = Math.floor(nCs / 8640000);
+  }
+  nCs -= nD * 8640000;
+  nH = Math.floor(nCs / 360000);
+  nCs -= nH * 360000;
+  var nMin = Math.floor(nCs /6000);
+  nCs -= nMin * 6000
+  // Now we can construct string
+  if (nY > 0) str += nY + "Y";
+  if (nM > 0) str += nM + "M";
+  if (nD > 0) str += nD + "D";
+  if ((nH > 0) || (nMin > 0) || (nCs > 0))
+  {
+    str += "T";
+    if (nH > 0) str += nH + "H";
+    if (nMin > 0) str += nMin + "M";
+    if (nCs > 0) str += (nCs / 100) + "S";
+  }
+  if (str == "P") str = "PT0H0M0S";
+  // technically PT0S should do but SCORM test suite assumes longer form.
+  return str;
+}
+
+function centisecsToSCORM12Duration(n)
+{
+  // Format is [HH]HH:MM:SS[.SS]
+  var bTruncated = false;
+  var nH = Math.floor(n / 360000);
+  var nCs = n - nH * 360000;
+  var nM = Math.floor(nCs / 6000);
+  nCs = nCs - nM * 6000;
+  var nS = Math.floor(nCs / 100);
+  nCs = nCs - nS * 100;
+  if (nH > 9999)
+  {
+    nH = 9999;
+    bTruncated = true;
+  }
+  var str = "0000" + nH + ":";
+  str = str.substr(str.length-5,5);
+  if (nM < 10) str += "0";
+  str += nM + ":";
+  if (nS < 10) str += "0";
+  str += nS;
+  if (nCs > 0)
+  {
+    str += ".";
+    if (nCs < 10) str += "0";
+    str += nCs;
+  }
+  //if (bTruncated) alert ("Hours truncated to 9999 to fit HHHH:MM:SS.SS format")
+  return str;
+}
+
+function ZeroPad(n, nLength)
+{
+  // Takes a number and pads it with leading 0 to the length specified.
+  // The padded length does not include negative sign if present.
+  var bNeg = (n < 0);
+  var s = n.toString();
+  if (bNeg) s = s.substr(1,s.length);
+  while (s.length < nLength) s = "0" + s;
+  if (bNeg) s = "-" + s;
+  return s
+}
+
+//// Now some worker stuff
+
+function WindowInfo(Wnd, Rel, Tgt)
+{
+  // Constructor for WindowInfo record
+  // Wnd is a handle to the window described by the record
+  // Rel is one of "parent", "sibling", "frame", "opener" or "self"
+  // Tgt is the target of the relation, e.g.
+  // if Wnd is parent of target the relation is "parent"
+  // if the relation is "self" then the target is assumed
+  // to be the same as Wnd.
+  // Paranoid to avoid cross domain exceptions.
+
+  if (!Rel) Rel = "self";
+  this.Wnd = Wnd;
+  this.Rel = Rel;
+  this.Tgt = Tgt;
+  this.bHasSCORM12API = false;
+  this.bHasIEEEAPI = false;
+  this.IsTop = false;
+  this.URL = "";
+  this.FileName = "";
+  this.Name = "";
+  this.Title = "";
+  this.shade = "";
+  try
+  {
+    this.bIsTop = (Wnd.top == Wnd);
+  }
+  catch (e)
+  {
+    // Mysterious "callee disappeared" error sometimes
+    // happens here when deeply embedded in a frameset
+    // and this is run before the frameset is fully loaded.
+  }
+  this.Parent = null;
+  this.Opener = null;
+
+    // Ignore cross-domain errors
+
+  try { this.Parent = Wnd.parent; } catch (e) {}
+  if (Wnd.parent == Wnd) this.Parent = null;
+  try { this.Opener = Wnd.opener; } catch (e) {}
+  this.Siblings = null;
+  if (this.Parent)
+  {
+    try { this.Siblings = Wnd.parent.frames; } catch (e) {}
+  }
+
+  this.bSameDomain = true;
+
+  // Use try because there may be a security violation
+  // due to XSS block
+  try
+  {
+    this.Name = Wnd.name;
+  }
+  catch (e)
+  {
+    this.bSameDomain = false;
+  }
+  try
+  {
+    if ((typeof(Wnd.API_1484_11) != "undefined"))
+      // && (Wnd.API_1484_11.Initialize))
+      // Due to an apparent Java bug in test suite - does not expose function correctly -
+      // cannot do a serious test here
+    {
+      this.bHasIEEEAPI = true;
+      if (!gAPIObj)
+      {
+        gAPIObj = Wnd.API_1484_11;
+        gAPIWnd = Wnd;
+        gAPIVersion = "SCORM 2004";
+        gAPI1484version = gAPIObj.version;
+      }
+    }
+  }
+  catch (e)
+  {
+  }
+  try
+  {
+    if ((Wnd.API)&& (true))
+       // (Wnd.API.LMSInitialize))
+       // Due to an apparent Java bug in ADL test suite - does not expose function correctly -
+       // cannot do a serious test here
+    {
+      this.bHasSCORM12API = true;
+      if (!gAPIObj)
+      {
+        gAPIObj = Wnd.API;
+        gAPIWnd = Wnd;
+        gAPIVersion = "SCORM 1.2"; // At least we assume so
+      }
+    }
+  }
+  catch (e)
+  {
+  }
+  if (this.bSameDomain)
+  {
+    try
+    {
+      this.URL = Wnd.document.location.href;
+      this.Title = Wnd.document.title;
+    }
+    catch (e)
+    {
+      this.bSameDomain = false;
+    }
+  }
+  if (this.URL.length > 0)
+  {
+    var s = this.URL;
+    var p;
+    p = s.indexOf("?");
+    if (p >= 0) s = s.substr(0,p);
+    if ((s.length > 1) && (s.substr(s.length-1) == "\/")) s = s.substr(0,s.length-1);
+    var p = s.lastIndexOf("\/");
+    if (p >= 0) s = s.substr(p+1)
+    this.FileName = s;
+  }
+  return this
+}
+
+function GetWindowIndex(Wnd)
+{
+  if (!gaWindowInfo) gaWindowInfo = new Array();
+  for (var i=0;i<gaWindowInfo.length;i++)
+  {
+    if (gaWindowInfo[i].Wnd == Wnd) return i;
+  }
+  return -1;
+}
+
+function CollectFramesInfo(Wnd)
+{
+  var bAlready;
+  var Tgt = GetWindowIndex(Wnd);
+  if (Tgt < 0)
+  {
+    // Should never happen
+    alert("Attempt to collect frames for a window not inventoried yet.")
+    return;
+  }
+  if (!gaWindowInfo) gaWindowInfo = new Array();
+
+  for (i=0;i<Wnd.frames.length;i++)
+  {
+    bAlready = false;
+    for (j=0;j<gaWindowInfo.length;j++)
+    {
+      if (Wnd.frames[i] == gaWindowInfo[j].Wnd) bAlready = true;
+    }
+    if (!bAlready)
+    {
+      gaWindowInfo[Wnd.length] =
+        new WindowInfo(Wnd.frames[i], "frame", Tgt);
+    }
+  }
+}
+
+function CollectWindowInfo(Wnd, Rel, Tgt)
+{
+  // Recursive function!
+  if (!Wnd) Wnd = window;
+  var i, j;
+  var WndParent = null;
+  try { WndParent = Wnd.parent; } catch (e) { }
+  var WndOpener = null;
+  try { WndOpener = Wnd.opener; } catch (e) { }
+
+  // Old IE bug workaround
+  if (WndParent == Wnd) WndParent = null;
+
+  if (!gaWindowInfo) gaWindowInfo = new Array();
+
+  gaWindowInfo[gaWindowInfo.length] = new WindowInfo(Wnd, Rel, Tgt);
+
+  if (WndParent)
+  {
+    CollectWindowInfo(WndParent, "parent", Wnd)
+  }
+  else if (WndOpener)
+  {
+    CollectWindowInfo(WndOpener, "opener", Wnd);
+  }
+  var r = gnBACKGROUND_RED;
+  var g = gnBACKGROUND_GREEN;
+  var b = gnBACKGROUND_BLUE;
+  for (var i=0;i<gaWindowInfo.length;i++)
+  {
+    gaWindowInfo[i].shade = pseudoPrintf('rgb(#1,#2,#3)',r,g,b);
+    if (b > 127)  b = b-30;
+    else if (g > 127) g = g-30;
+    else if (r > 127) r = r-30;
+  }
+}
+
+
+/******* Exercise the API *******/
+
+//// This stuff works with either a SCORM 2004 or
+//// SCORM 1.2 runtime environment (but one at a time ;)
+
+function LogAPICallError(fName, e)
+{
+  AppendToLog(pseudoPrintf(gsCAUGHT_ERROR_IN_API_FUNC, fName)
+    + '<br />\n' + e.name + ": " + e.message, "error");
+}
+
+function SCORM_Initialize()
+{
+  var r = "???";
+  var fName = "Initialize";
+  if (gAPIObj)
+  {
+    try
+    {
+      if (gAPIVersion == "SCORM 2004")
+      {
+        r = gAPIObj.Initialize("");
+      }
+      else
+      {
+        fName = "LMSInitialize"
+        r = gAPIObj.LMSInitialize("");
+      }
+    }
+    catch (e)
+    {
+      LogAPICallError(fName, e);
+    }
+  }
+  if (r == "true")
+  {
+    gbAPIInSession = true;
+    gbSessionTimeFrozen = false;
+    SetInitialSessionTime();
+    if (gbDisplaySessionTime)
+    {
+      StartTickleSessionTime();
+    }
+  }
+
+  return r;
+}
+
+function SCORM_Terminate()
+{
+  var r = "???";
+  var fName = "Terminate";
+  if (gAPIObj)
+  {
+    try
+    {
+      if (gAPIVersion == "SCORM 2004")
+      {
+        r = gAPIObj.Terminate("");
+      }
+      else
+      {
+        fName = "LMSFinish"
+        r = gAPIObj.LMSFinish("");
+      }
+    }
+    catch (e)
+    {
+      LogAPICallError(fName, e);
+    }
+    if (r == "true")
+    {
+      gbAPIInSession = false;
+      gbAPISessionFinished = true;
+      gbSessionTimeFrozen = true;
+    }
+  }
+  return r;
+}
+
+function SCORM_Commit()
+{
+  var r = "???";
+  var fName = "Commit";
+  if (gAPIObj)
+  {
+    try
+    {
+      if (gAPIVersion == "SCORM 2004")
+      {
+        r = gAPIObj.Commit("");
+      }
+      else
+      {
+        fName = "LMSCommit";
+        r = gAPIObj.LMSCommit("");
+      }
+    }
+    catch (e)
+    {
+      LogAPICallError(fName, e);
+    }
+  }
+  return r;
+}
+
+function SCORM_GetValue(which)
+{
+  var r = "???";
+  fName = "GetValue";
+  if (gAPIObj)
+  {
+    try
+    {
+      if (gAPIVersion == "SCORM 2004")
+      {
+        r = gAPIObj.GetValue(which);
+      }
+      else
+      {
+        fName = "LMSGetValue";
+        r = gAPIObj.LMSGetValue(which);
+      }
+    }
+    catch (e)
+    {
+      LogAPICallError(fName, e);
+    }
+  }
+  return r;
+}
+
+function SCORM_SetValue(which,what)
+{
+  var r = "???";
+  fName = "SetValue";
+  if (gAPIObj)
+  {
+    try
+    {
+      if (gAPIVersion == "SCORM 2004")
+      {
+        r = gAPIObj.SetValue(which,what);
+      }
+      else
+      {
+        fName = "LMSSetValue";
+        r = gAPIObj.LMSSetValue(which,what);
+      }
+    }
+    catch (e)
+    {
+      LogAPICallError(fName, e);
+    }
+  }
+  return r;
+}
+
+function SCORM_GetLastError()
+{
+  var r = "???";
+  if (!gAPIObj) return r;
+  fName = "GetLastError";
+  try
+  {
+    if (gAPIVersion == "SCORM 2004")
+    {
+      r = gAPIObj.GetLastError();
+    }
+    else
+    {
+      fName = "LMSGetLastError";
+      r = gAPIObj.LMSGetLastError();
+    }
+  }
+  catch (e)
+  {
+    LogAPICallError(fName, e);
+  }
+  return parseInt(r+"");
+}
+
+function SCORM_GetErrorString(n)
+{
+  if (isNaN(n)) n = parseInt(n);
+  if ((isNaN(n)) || (!gAPIObj)) return "";
+  var r = "???";
+  var fName = "GetErrorString";
+  try
+  {
+    if (gAPIVersion == "SCORM 2004")
+    {
+      r = gAPIObj.GetErrorString(n + "");
+    }
+    else
+    {
+      fName = "LMSGetErrorString";
+      r = gAPIObj.LMSGetErrorString(n + "");
+    }
+  }
+  catch (e)
+  {
+    LogAPICallError(fName, e);
+  }
+  return r;
+}
+
+function SCORM_GetDiagnostic(n)
+{
+  if (isNaN(n)) n = parseInt(n);
+  if ((isNaN(n)) || (!gAPIObj)) return "";
+  var r = "???";
+  var fName = "GetDiagnostic";
+  try
+  {
+    if (gAPIVersion == "SCORM 2004")
+    {
+      r = gAPIObj.GetDiagnostic(n + "");
+    }
+    else
+    {
+      fName = "LMSGetDiagnostic";
+      r = gAPIObj.LMSGetDiagnostic(n + "");
+    }
+  }
+  catch (e)
+  {
+    LogAPICallError(fName, e);
+  }
+  return r;
+}
+
+function MakeErrorDetails(nErr)
+{
+  var s = "";
+  var r = "";
+
+  if (!gAPIObj) return gsNO_ERROR_DETAIL_WITHOUT_API;
+
+  if ((nErr != null) && (isNaN(nErr))) nErr = parseInt(nErr);
+  if (gAPIVersion == "SCORM 2004")
+  {
+    try
+    {
+      if (nErr == null) nErr = parseInt(gAPIObj.GetLastError());
+    }
+    catch (e) { }
+    if (isNaN(nErr)) return "";
+    if (nErr == 0) return gsNOERROR;
+    s = pseudoPrintf('#1 #2',gsERROR_LABEL, nErr);
+    try
+    {
+      r = gAPIObj.GetErrorString(nErr + "");
+    } catch (e) { }
+    if (r.length > 0)
+    {
+      s += pseudoPrintf('<br />\n#1 "#2"',gsERROR_STRING_LABEL,r);
+    }
+    try
+    {
+      r = gAPIObj.GetDiagnostic(nErr + "");
+    } catch (e) { }
+    if (r.length > 0)
+    {
+      s += pseudoPrintf('<br />\n#1 "#2"',gsDIAGNOSTIC_LABEL ,r);
+    }
+  }
+  else
+  {
+    try
+    {
+      if (nErr == null) nErr = parseInt(gAPIObj.LMSGetLastError());
+    }
+    catch (e) { }
+    if (isNaN(nErr)) return "";
+    if (nErr == 0) return gsNOERROR;
+    s = "Error " + nErr;
+    try
+    {
+      r = gAPIObj.LMSGetErrorString(nErr + "");
+    } catch (e) { }
+    if (r.length > 0)
+    {
+      s += '<br />\n' + gsERROR_STRING_LABEL + ' "' + r + '"';
+    }
+    try
+    {
+      r = gAPIObj.LMSGetDiagnostic(nErr + "");
+    } catch (e) { }
+    if (r.length > 0)
+    {
+      s += '<br />\n' + gsDIAGNOSTIC_LABEL + ' "' + r + '"';
+    }
+  }
+  return s;
+}
+
+////////////
+
+function Help()
+{
+  alert("Sorry, help not available yet.")
+  // HelpPopup();
+}
+
+function SetWindowDoc(wnd,s)
+{
+  var doc = wnd.document;
+  doc.open();
+  doc.write(s);
+  doc.close();
+}
+
+
+function TestInitialize()
+{
+  var s = SCORM_Initialize();
+  var r = ((gAPIVersion == "SCORM 2004")?'Initialize("")':'LMSInitialize("")')
+   + ' returns "' + s + '"';
+  gnAPIError = parseInt(SCORM_GetLastError());
+  if (gnAPIError != 0) r += ' Error ' + gnAPIError;
+  AppendToLog(r);
+  UpdateFlagsWindow();
+  //wndForms.document.getElementById("ErrorStatus").innerHTML = s;
+}
+
+function TestCommit()
+{
+  var s = SCORM_Commit();
+  if (s == "???") return false;
+  var r = ((gAPIVersion == "SCORM 2004")?'Commit("")':'LMSCommit("")')
+   + ' returns "' + s + '"';
+  gnAPIError = parseInt(SCORM_GetLastError());
+  if (gnAPIError != 0) r += ' Error ' + gnAPIError;
+  AppendToLog(r);
+  UpdateFlagsWindow();
+  //wndForms.document.getElementById("ErrorStatus").innerHTML = s;
+}
+
+function TestTerminate()
+{
+  var s = SCORM_Terminate();
+  var r = ((gAPIVersion == "SCORM 2004")?'Terminate("")':'LMSFinish("")')
+   + ' returns "' + s + '"';
+  gnAPIError = parseInt(SCORM_GetLastError());
+  if (gnAPIError != 0) r += ' Error ' + gnAPIError;
+  AppendToLog(r);
+  UpdateFlagsWindow();
+  //wndForms.document.getElementById("ErrorStatus").innerHTML = s;
+}
+
+function TestSetValue(nam,v)
+{
+  var doc = wndForms.document;
+  if (!nam)
+  {
+    nam = doc.getElementById("SetElementName").value;
+    v = doc.getElementById("TextSetValue").value;
+  }
+  var r = 'SetValue("' + nam + '","' + v + '")';
+  if (gAPIVersion != "SCORM 2004") r = "LMS" + r;
+  AppendToLog(r)
+  var s = SCORM_SetValue(nam, v);
+  wndForms.document.getElementById("SetValueResult").innerHTML = '"' + s + '"';
+  r = 'Returns "' + s + '"';
+  gnAPIError = parseInt(SCORM_GetLastError());
+  if (gnAPIError != 0) r += ' Error = ' + gnAPIError;
+  AppendToLog(r);
+  UpdateFlagsWindow();
+}
+
+// Specialized
+function TestSetValueSessionTime()
+{
+  var nam = "cmi.session_time";
+  if (gAPIVersion != "SCORM 2004")
+  {
+    nam = "cmi.core.session_time";
+  }
+  wndForms.document.getElementById("SetElementName").value = nam;
+  wndForms.document.getElementById("TextSetValue").value = GetFormattedSessionTime();
+  TestSetValue();
+}
+
+function TestGetValue(nam)
+{
+  var doc = wndForms.document;
+  if (!nam)
+  {
+    nam = doc.getElementById("GetElementName").value;
+  }
+  var r = 'GetValue("' + nam + '")';
+  if (gAPIVersion != "SCORM 2004")
+  {
+    r = "LMS" + r;
+  }
+  AppendToLog(r)
+  var s = SCORM_GetValue(nam);
+  r = 'Returns "' + s + '"';
+  gnAPIError = parseInt(SCORM_GetLastError());
+  if (gnAPIError != 0)
+  {
+    r += ' Error = ' + gnAPIError;
+  }
+  AppendToLog(r);
+  UpdateFlagsWindow();
+  doc.getElementById("GetValueReturn").innerHTML = '"' + s + '"';
+}
+
+function TestGetLastError()
+{
+  var s = SCORM_GetLastError();
+  var r = pseudoPrintf('GetLastError() returns "#1"',s);
+  if (gAPIVersion != "SCORM 2004")
+  {
+    r = "LMS" + r;
+  }
+  AppendToLog(r);
+}
+
+function TestGetErrorString(n)
+{
+  var s = SCORM_GetErrorString(n+"");
+  var r = pseudoPrintf('GetErrorString("#1") returns "#2"',n,s);
+  if (gAPIVersion != "SCORM 2004") r = "LMS" + r;
+  AppendToLog(r);
+}
+
+function TestGetDiagnostic(n)
+{
+  var s = SCORM_GetDiagnostic(n+"");
+  var r = pseudoPrintf('GetDiagnostic("#1") returns "#2"',n,s);
+  if (gAPIVersion != "SCORM 2004") r = "LMS" + r;
+  AppendToLog(r);
+
+}
+
+function TestGetErrorStatus()
+{
+  var doc = wndForms.document;
+  var n = doc.getElementById("ErrorNumber").value;
+  var s = MakeErrorDetails(n);
+  doc.getElementById("ErrorStatus").innerHTML = s;
+}
+
+
+function TestScriptGenerateDemo()
+{
+  if (gAPIVersion == "SCORM 1.2")
+  {
+    TestScriptGenerateDemo12();
+    return;
+  }
+  var s = 'Initialize("")' +
+    '\nGetValue("cmi.entry")' +
+    '\nSetValue("cmi.exit","suspend")' +
+    '\nGetValue("cmi.completion_status")' +
+    '\nGetValue("cmi.success_status")' +
+    '\nGetValue("cmi.score.scaled")' +
+    '\n\/\/The next call shows how some syntax errors' +
+    '\n\/\/can get caught by the diagnostic SCO locally.' +
+    '\nSetValue("cmi.score.scaled,7")' +
+    '\nSetValue("cmi.completion_status","incomplete")' +
+    '\nCommit("")' +
+    '\nGetValue("cmi.scaled_passing_score")' +
+    '\nSetValue("cmi.score.scaled","0.94")' +
+    '\n\/\/The next 2 calls should show how a SCORM conformant' +
+    '\n\/\/RTE overrides success status if the score reported by' +
+    '\n\/\/the SCO is lower than the passing score.' +
+    '\nSetValue("cmi.success_status","failed")' +
+    '\n\/\/A conformant RTE will change failed to passed' +
+    '\n\/\/because score is higher than the passing score.' +
+    '\nGetValue("cmi.success_status")' +
+    '\nSetValue("cmi.exit","")' +
+    '\nTerminate("")';
+  wndForms.document.getElementById("ScriptSource").value = s;
+  RepairDefaultDelay();
+  //TestScriptRun();
+}
+
+function TestScriptGenerateDemo12()
+{
+  var s = 'LMSInitialize("")' +
+    '\nLMSGetValue("cmi.core.entry")' +
+    '\nLMSSetValue("cmi.core.exit","suspend")' +
+    '\nLMSGetValue("cmi.core.lesson_status")' +
+    '\nLMSGetValue("cmi.core.score.raw")' +
+    '\nLMSSetValue("cmi.core.lesson_status","incomplete")' +
+    '\nLMSCommit("")' +
+    '\nLMSGetValue("cmi.student_data.mastery_score")' +
+    '\nLMSSetValue("cmi.core.lesson_status","failed")' +
+    '\nLMSSetValue("cmi.core.score.raw","94")' +
+    '\nLMSGetValue("cmi.core.lesson_status")' +
+    '\nLMSSetValue("cmi.core.exit","")' +
+    '\nLMSFinish("")';
+  wndForms.document.getElementById("ScriptSource").value = s;
+  RepairDefaultDelay();
+  //TestScriptRun();
+}
+
+function RepairDefaultDelay()
+{
+  var fld = wndForms.document.getElementById("TestScriptInterval");
+  var n = parseInt(fld.value);
+  if (isNaN(n))
+  {
+  	fld.value = gnDefaultScriptDelay+"";
+  }
+}
+
+function TestScriptValidateDelay(n)
+{
+  if ((isNaN(n)) || (n < 0))
+  {
+    alert(gsSCRIPT_INTERVAL_ERROR);
+    return false;
+  }
+  return true;
+}
+
+
+function SCORMParamStrings(s)
+{
+  // Try to extract one or two parameter strings from s
+  this.nError = 0;
+  this.nParams = 1;
+  this.s1 = "";
+  this.s2 = "";
+  var a = s.split(",")
+  if (a.length > 1) this.nParams = 2;
+  var p1 = a[0].indexOf('\"');
+  var p2 = a[0].lastIndexOf('\"');
+  if ((p1 < 0) || (p2 <= p1))
+  {
+    this.nError = 100; // TBD
+  }
+  else
+  {
+    this.s1 = a[0].substring(p1+1,p2);
+    if (a.length > 1)
+    {
+      // the second string might contain commas, get it as a whole
+      var s2 = s.substring(a[0].length);
+      p1 = s2.indexOf('\"');
+      p2 = s2.lastIndexOf('\"');
+      if ((p1 < 0) || (p2 <= p1))
+      {
+        // Definitely a syntax error here.
+        this.nError = 200; // TBD
+      }
+      else
+      {
+        this.s2 = s2.substring(p1+1,p2);
+      }
+    }
+  }
+  //alert("s1=" + this.s1 + "\n\ns2=" + this.s2);
+  return this
+}
+
+function LogTestScriptError(s, nErr)
+{
+  AppendToLog(pseudoPrintf('#1<br />\n#2',
+    gsSCRIPT_ERROR_NOT_MAKING_CALL,s),
+    "error");
+}
+
+function TestScriptEnableButtons(bRun,bPause,bResume,bCancel,bStep)
+{
+  var doc = wndForms.document;
+   {
+    if (bRun != null)
+    {
+      doc.getElementById("btnRunScript").disabled = !bRun;
+    }
+    if (bPause != null)
+    {
+      doc.getElementById("btnPauseScript").disabled = !bPause;
+    }
+    if (bCancel != null)
+    {
+      doc.getElementById("btnCancelScript").disabled = !bCancel;
+    }
+    if (bStep != null)
+    {
+      doc.getElementById("btnStepScript").disabled = !bStep;
+    }
+  }
+}
+
+function TestScriptDisplayPlay(n)
+{
+  if (!gaScript) return;
+  var doc = wndForms.document;
+  var Box = doc.getElementById("ScriptBox");
+  var Play = doc.getElementById("ScriptPlay");
+  if (Box.visibility != "hidden")
+  {
+    var s = "";
+    for (var i=0;i<gaScript.length;i++)
+    {
+      s += pseudoPrintf('<div class="" ' +
+           'id="ScriptLine#1">#2<\/div>',i,gaScript[i]);
+    }
+    Play.innerHTML = s;
+    Box.style.visibility = "hidden";
+    Box.style.display = "none";
+    Play.style.visibility = "inherit";
+    Play.style.display = "block";
+  }
+  var lin = doc.getElementById("ScriptLine" + (n-1));
+  if (lin)
+  {
+    lin.style.background="black";
+    lin.style.color="white";
+    Play.scrollTop = ((n-4) * 16)+2
+  }
+}
+
+function TestScriptRESET()
+{
+  giScript = 0;
+  gaScript = null;
+  var doc = wndForms.document;
+  doc.getElementById("ScriptCounter").innerHTML = '';
+  var Box = doc.getElementById("ScriptBox");
+  var Play = doc.getElementById("ScriptPlay");
+  Box.style.display = "inline";
+  Box.style.visibility = "inherit";
+  Play.innerHTML = "";
+  Play.style.display = "none";
+  Play.style.visibility = "hidden";
+  doc.getElementById("ScriptSource").scrollTop = 0;
+  TestScriptEnableButtons(true,false,false,false,true);
+      // bRun,bPause,bResume,bCancel,bStep
+}
+
+function TestScriptInitialize()
+{
+  TestScriptRESET();
+  TestScriptEnableButtons(null,false,false,false,null);
+  gsScript = trim(wndForms.document.getElementById("ScriptSource").value);
+  var cmd = trim(gsScript).toUpperCase();
+  switch(cmd)
+  {
+    case "DOWNLOAD":
+      ShowScriptDownloadButton(true);
+      return;
+    case "RESET":
+      ClearAllCookies();
+      return;
+    default:
+      // just continue...
+  }
+  if (!gAPIObj)
+  {
+    AppendToLog (gsRUN_SCRIPT_NONSENSE_WITHOUT_API, "error");
+  }
+  if (gsScript.indexOf(gsSCRIPT_DEFAULT_TEXT) == 0) return false;
+  if (gsScript == "")
+  {
+    alert(gsSCRIPT_EMPTY_ERROR);
+    return false;
+  }
+  gaScript = gsScript.split('\n');
+  //alert ("Script contains " + gaScript.length);
+  giScript = 0;
+  if (gaScript.length > 0) AppendToLog("*** " + gsSCRIPT_STARTED + " ***");
+  return (gaScript.length > 0);
+}
+
+function TestScriptStep()
+{
+  if (gTimerScript)
+  {
+    clearInterval(gTimerScript);
+    gTimerScript = null;
+  }
+  if ((gaScript == null) && (!TestScriptInitialize())) return;
+
+  if (giScript > gaScript.length)
+  {
+    if (confirm (gsBACK_TO_SCRIPT_START))TestScriptInitialize();
+    else return;
+  }
+  TestScriptEnableButtons(null,false,false,true,null);
+  TestScriptTryOneLine();
+}
+
+function TestScriptRun()
+{
+  if (gTimerScript)
+  {
+    clearInterval(gTimerScript);
+    gTimerScript = null;
+  }
+
+  if ((gaScript == null) && (!TestScriptInitialize())) return;
+
+  if (giScript > gaScript.length)
+  {
+    if (confirm (gsBACK_TO_SCRIPT_START))TestScriptInitialize();
+    else return;
+  }
+
+  // if (!TestScriptInitialize()) return false;
+
+  var n = parseInt(wndForms.document.getElementById("TestScriptInterval").value);
+  if (!TestScriptValidateDelay(n)) return false;
+
+  TestScriptEnableButtons(false,true,false,true,false);
+  gnScriptDelay = n;
+  if (gbUseCookie)
+  {
+    SetCookie("ScriptDelay", gnScriptDelay);
+    var s = "";
+    var bOK = false;
+    for (var i = 0; i < gaScript.length; i++)
+    {
+      // Magic limit. If longer, don't store in cookie.
+      if (s.length < 3600) s += gaScript + '\n';
+      else bOK = false;
+    }
+    if (bOK) SetCookie("TestScript",s);
+    else DeleteCookie("TestScript");
+  }
+
+  if (gnScriptDelay > 0)
+  {
+    gTimerScript = setInterval("TestScriptTryOneLine()", gnScriptDelay);
+    TestScriptTryOneLine();
+  }
+  else
+  {
+    for (giScript = 0; giScript < gaScript.length; )
+    {
+      TestScriptTryOneLine();
+    }
+  }
+}
+
+function TestScriptTryOneLine()
+{
+  if ((!gaScript) || (giScript > gaScript.length))
+  {
+    TestScriptStopTimer();
+    TestScriptRESET();
+    AppendToLog("*** " + gsSCRIPT_FINISHED + " ***");
+  }
+  else
+  {
+    var s = "";
+    getOneScriptLine:
+    while (giScript <= gaScript.length)
+    {
+      s = trim(gaScript[giScript]);
+      giScript++;
+      if (s != "") break getOneScriptLine;
+    }
+    testForEndOrComment:
+    while (true)
+    {
+      if (giScript-1 > gaScript.length)
+      {
+        TestScriptStopTimer();
+        TestScriptRESET();
+      }
+      if (s.indexOf("\/\/") == 0)
+      {
+        AppendToLog(s);
+        s = trim(gaScript[giScript]);
+        giScript++;
+      }
+      else
+      {
+        break testForEndOrComment;
+      }
+    }
+    if ((s.indexOf("GetLastError")==0) ||
+        (s.indexOf("LMSGetLastError")==0))
+    {
+      TestGetLastError;
+      return;
+    }
+    TestScriptDisplayPlay(giScript);
+    try
+    {
+      //wndForms.document.getElementById("ScriptSource").scrollTop = giScript * 16;
+      wndForms.document.getElementById("ScriptCounter").innerHTML = '&nbsp;'
+        + giScript + '&nbsp;';
+    }
+    catch (e)
+    {
+      // just ignore this may be Opera
+    }
+    var p = s.indexOf('("');
+    if (p > 5)
+    {
+      var s1 = s;
+      var cmd = s.substr(0,p);
+      var params = null;
+      switch(cmd)
+      {
+      case "Initialize":
+      case "LMSInitialize":
+        if (gAPIObj)TestInitialize();
+        else AppendToLog(cmd + ' - ' + gsSCRIPT_ERROR_NO_API,"error");
+        break;
+      case "Terminate":
+      case "LMSFinish":
+        if (gAPIObj) TestTerminate();
+        else AppendToLog(cmd + ' - ' + gsSCRIPT_ERROR_NO_API,"error");
+        break;
+      case "Commit":
+      case "LMSCommit":
+        if (gAPIObj) TestCommit();
+        else AppendToLog(cmd + ' - ' + gsSCRIPT_ERROR_NO_API,"error");
+        break;
+      case "GetValue":
+      case "LMSGetValue":
+        if (gAPIObj)
+        {
+          params = new SCORMParamStrings(s);
+          if (params.nError == 0) TestGetValue(params.s1);
+          else LogTestScriptError(s, params.nError);
+        }
+        else AppendToLog(cmd + ' - ' + gsSCRIPT_ERROR_NO_API,"error");
+        break;
+      case "SetValue":
+      case "LMSSetValue":
+        if (gAPIObj)
+        {
+          params = new SCORMParamStrings(s)
+          if (params.nError == 0) TestSetValue(params.s1,params.s2);
+          else LogTestScriptError(s, params.nError);
+        }
+        else AppendToLog(cmd + ' - ' + gsSCRIPT_ERROR_NO_API,"error");
+        break;
+      case "GetErrorString":
+      case "LMSGetErrorString":
+        if (gAPIObj)
+        {
+          params = new SCORMParamStrings(s);
+          if (params.nError == 0) TestGetValue(params.s1);
+          else LogTestScriptError(s, params.nError);
+        }
+        else AppendToLog(cmd + ' - ' + gsSCRIPT_ERROR_NO_API,"error");
+        break;
+      case "GetDiagnostic":
+      case "LMSGetDiagnostic":
+        if (gAPIObj)
+        {
+          params = new SCORMParamStrings(s);
+          if (params.nError == 0) TestGetValue(params.s1);
+          else LogTestScriptError(s, params.nError);
+        }
+        else AppendToLog(cmd + ' - ' + gsSCRIPT_ERROR_NO_API,"error");
+        break;
+      default:
+        LogTestScriptError(s);
+        return;
+      }
+    } else if (s.length > 0) LogTestScriptError(s);
+  }
+}
+
+function TestScriptStopTimer()
+{
+  if (gTimerScript)
+  {
+    clearInterval(gTimerScript);
+    gTimerScript = null;
+  }
+  TestScriptEnableButtons(true,null,null,null,true)
+}
+
+function TestScriptPause()
+{
+  TestScriptStopTimer();
+  TestScriptEnableButtons(true,false,true,true,true);
+  AppendToLog("*** " + gsSCRIPT_PAUSED + " ***");
+}
+
+function TestScriptResume()
+{
+  var n = parseInt(wndForms.document.getElementById("TestScriptInterval").value);
+  if (!TestScriptValidateDelay(n)) return false;
+  TestScriptEnableButtons(false,true,false,true,false);
+    //bRun,bPause,bResume,bCancel,bStep
+  gnScriptDelay = n;
+  if (gnScriptDelay > 0)
+  {
+    gTimerScript = setInterval("TestScriptTryOneLine()", gnScriptDelay);
+    TestScriptTryOneLine();
+  }
+  else
+  {
+    for (giScript = 0; giScript < gaScript.length; )
+    {
+      TestScriptTryOneLine();
+    }
+  }
+}
+
+function TestScriptCancel()
+{
+  TestScriptStopTimer();
+  gaScript = null;
+  TestScriptEnableButtons(true,false,false,false,true);
+  AppendToLog("*** " + gsSCRIPT_CANCELED + " ***");
+  TestScriptRESET();
+}
+
+function TestHelpScript()
+{
+  // Translatable
+  var s = gsTEST_HELP_PART_1;
+
+  // Not translatable
+  s += '\n\n' +
+    'Initialize("")\n' +
+    'GetValue("cmi.entry")\n' +
+    'SetValue("cmi.interactions.0.id","I-33BD7A74-DD5C-11DA-9B41-B622A1EF5492")' +
+    '\n\n'
+
+  // Translatable
+  s += gsTEST_HELP_PART_2;
+  alert(s)
+}
+
+function ShowScriptDownloadButton(bShow)
+{
+  try
+  {
+    if (wndForms.document)
+    {
+      obj = wndForms.document.getElementById("DownloadScript");
+      if (obj) obj.style.visibility = (bShow)?'inherit':'hidden';
+    }
+  }
+  catch (e)
+  {
+    // This will fail gracefully if called before the initialization is complete
+  }
+}
+
+///// Generate the various web pages and tab panes ///////
+
+function GenericStyles()
+{
+  var s = '<style type="text/css">' +
+    'body { background: ' +
+    pseudoPrintf('rgb(#1,#2,#3)',gnBACKGROUND_RED,gnBACKGROUND_GREEN,gnBACKGROUND_BLUE) +
+    '; color:black; padding: 3px;' +
+    'font-family: Arial, Helvetica, Sans-Serif;' +
+    'font-size: 10pt; color: #000000}\n ' +
+    'p {font-size: 10pt; padding-top: 3px; padding-bottom: 3px; margin:0;}\n' +
+    'th {font-size: 8pt; font-weight: bold;}\n' +
+    'td {font-size: 8pt;}\n' +
+    'ul {margin-top: 3pt; margin-bottom: 3pt; ' +
+    'padding-top: 3pt; padding-bottom: 3pt;}\n' +
+    'h3 {margin-bottom: 3pt; padding-bottom: 3pt;}\n' +
+    'ol {margin-top: 3pt; margin-bottom: 3pt; ' +
+    'padding-top: 3pt; padding-bottom: 3pt;}\n' +
+    'fieldset {padding-left: 3px; padding-right: 3px;}' +
+    'btn {font-size: 9pt; margin-top: 2px; margin-bottom: 2px;}\n' +
+    '.Caption {font-weight: bold;}\n' +
+    '.Annotation {font-size: 80%;}\n' +
+    '.highlightError {background-color: #f00; color:black; font-weight:bold;}\n' +
+    '.highlightNoError {background-color: #4f4; color:black; font-weight:bold;}\n' +
+    'span.boxed { border: 1px solid black; }\n' +
+    'scriptbox {font-family: Courier New, Courier, Monospace; ' +
+    ' font-size: 13px; line-height: 16px;}\n' +
+    'div.scriptbox { position: relative; display:inline;' +
+    ' height:140px; visibility: inherit;}\n' +
+    'div.scriptplay { background-color: #ddd; position: relative; display:none;' +
+    ' height:142px; visibility: hidden; overflow:auto; padding:2px;' +
+    ' border: 2px inset;}\n' +
+    'div.scriptline {height:16px; font-family: Courier New, Courier, Monospace; ' +
+    ' font-size: 13px; line-height: 15px; padding-top:1px;padding-bottom:1px;margin:0;}\n' +
+    'div.scripthighlight {color:white; background-color:black; }\n' +
+    '#ScriptCounter { background-color: black; color: white; }' +
+    '<\/style>';
+  return s;
+}
+
+function MakeWebPage(s, sTitle, sStyle)
+{
+  if (!sStyle) sStyle = "";
+  return '<html xmlns="http://www.w3.org/1999/xhtml">' +
+    '\n<head><title>' + sTitle + '<\/title>' +
+    GenericStyles() + sStyle +
+    '<\/head>\n' +
+    '<body>' + s + '\n<\/body><\/html>';
+}
+
+function MakePseudoTab(sFormName, sTabLabel)
+{
+  return pseudoPrintf('<span class="pseudoTab" ' +
+    'id="Tab' + sFormName +
+    '" onclick="window.parent.ChooseForm(\'#1\')">' +
+    '<input type="Radio" id="WhichForm" name="WhichForm" ' +
+    'onclick="window.parent.ChooseForm(this.value)" ' +
+    'value="#1" />#2&nbsp;<\/span>&nbsp;',
+  sFormName, sTabLabel);
+}
+
+function BuildToolBar()
+{
+  var sTextSize = '10pt';
+
+  var sStyle = '<style type="text/css">' +
+    'body {background-color: #607040; color: white}\n ' +
+    'td {font-size:10pt; color: #b0b0b0; padding-bottom: 10px;}\n' +
+    '.pseudoTab { color: black; cursor: pointer; padding-top: 3px; padding-bottom: 6px;}\n' +
+    '<\/style>'
+
+  var s = '<table width="100%" cellpadding="0" cellspacing="0"><tr><td nowrap>' +
+    ' <strong>' +
+    MakePseudoTab("RTEContext", gsCHOICE_RTEINFO) +
+    MakePseudoTab("RunScript", gsCHOICE_RUNSCRIPT) +
+    MakePseudoTab("APIProdder", gsCHOICE_APIPRODDER) +
+    MakePseudoTab("Options", gsCHOICE_OPTIONS) +
+    MakePseudoTab("Help", gsCHOICE_HELP) +
+    '<\/strong>' +
+    '<\/td><td align="right" width="90%" nowrap>' +
+    '&nbsp; <small>&copy; 2005-2007 Claude Ostyn ' +
+    gsVERSION + '<\/small>' +
+    '<\/td><\/tr><\/table>';
+
+  SetWindowDoc(wndToolBar, MakeWebPage(s, "SCORM API Prodder ToolBar", sStyle));
+}
+
+/*
+    + '  \n<input type="Button" id="Window Info" name="Unload" value="'+ gsRESET +'" '
+    + 'class="btn" style="font-size: ' + sTextSize + '" '
+    + 'onClick="window.parent.ResetForms()" /> '
+*/
+
+function ShowRTEInfo()
+{
+  var s = MakeAPIInfo() +
+      MakeWindowCloseInfo() +
+      MakeWindowInfoDiagram() +
+      MakeWindowInfoTable();
+  wndForms.document.getElementById("RTEContext").innerHTML = s;
+}
+
+function MakeWinBlock(i, nWidth, sInclusion, bIsTheSCO)
+{
+  var sBr = '<br />\n';
+  var sAPI = '\n<div class="APIblock">' + gsAPI_OBJECT__WHICH + '<\/div>\n';
+  var sidDiag = "winOrFrameDiag_" + i;
+  var wi = gaWindowInfo[i];
+  var s = '\n<div id="' + sidDiag + '" class="'+
+    ((wi.Parent)?'frameblock':'winblock')+
+    '" style="width:' + nWidth + 'px; background-color:'+ wi.shade +';">'+
+    '\n<div class="WinCaptionBlock">'+
+    ((wi.Parent)?gsFRAME_WINDOW:gsTOP_LEVEL_WINDOW) + '<\/div>\n'+
+    ((wi.Name.length>0)?'name=<i>'+ wi.Name + '<\/i>':gsNAME_NOT_AVAILABLE) + sBr+
+    ((wi.Title.length>0)?'title=<i>'+ wi.Title + '<\/i>':gsTITLE_NOT_AVAILABLE) + sBr+
+    ((wi.FileName.length>0)?'<font size="1">'+wi.FileName+'<\/font>'+sBr:'')+
+    ((bIsTheSCO)?'\n<div class="SCOblock">SCO<\/div>\n':'')+
+    ((wi.bHasIEEEAPI)?pseudoPrintf(sAPI, "2004"):'')+
+    ((wi.bHasSCORM12API)?pseudoPrintf(sAPI, "1.2"):'')+
+    ((sInclusion)?sInclusion:'')+
+    '\n<\/div><!-- ' + sidDiag + ' -->\n';
+  return s;
+}
+
+function MakeWindowInfoDiagram()
+{
+  var sHeading = '\n<div class="Caption">' +
+    gsWINDOW_CONTEXT_DIAGRAM_HEADING +
+    '\n<\/div>';
+
+  var nDefWidth = 200;
+  var nPadding = 0;
+  var nBorder = 3;
+  var nMargin = 3;
+  var nDefShade = 255;
+  var sStyle = pseudoPrintf('<style>'+
+    '.winblock {float:left; width:#1px; padding:#2px; margin:#3px;'+
+    'border: #4px inset white; text-align:center; font-size:xx-small;}\n'+
+    '.frameblock {width:100%; padding:#2px; margin:#3px;'+
+    'border-style:groove ; text-align:center; font-size:xx-small;}\n'+
+    '.WinCaptionBlock {background-color: #000; color: white;'+
+    'width:100%;margin: 0px; '+
+    'margin-bottom: 2px; text-align: center; font-weight: bold;}\n'+
+    '.SCOBlock {background-color: #004000; color: white;'+
+    'font-size:20px; font-weight:bold;}\n'+
+    '.APIBlock {background-color: ' + gsCOLOR_OK + '; color: black;'+
+    'margin-bottom: 10px; text-align: center;'+
+    'font-size:14px; font-weight:bold;}\n'+
+    '<\/style>',
+    nDefWidth, nPadding, nMargin, nBorder);
+  var nWidth = nDefWidth;
+  var nShade = nDefShade;
+  var s = AddToWindowDiagram("", "start", 0,
+      nWidth,nDefWidth, nPadding, nMargin, nBorder) + '<p>&nbsp;<\/p>\n';
+  s += '\n<div style="clear:both;"> \n<\/div>';
+  //alert(s);
+  return sHeading + sStyle + s;
+}
+
+function AddToWindowDiagram(s, relType, i,
+   nWidth, nDefWidth, nPadding, nMargin, nBorder)
+{
+  switch (relType)
+  {
+    case "parent":
+      nWidth += (nPadding * 2 + nBorder * 2 + nMargin * 2);
+      s = MakeWinBlock(i, nWidth, s);
+      break;
+    case "opener":
+      nWidth = nDefWidth;
+      s = MakeWinBlock(i, nWidth) + s;
+     break;
+    default:
+      nWidth = nDefWidth;
+      s += MakeWinBlock(i, nWidth, "",(i == 0));
+  }
+  var thisParent = gaWindowInfo[i].Parent;
+  var thisOpener = gaWindowInfo[i].Opener;
+  if (thisParent)
+  {
+    s = AddToWindowDiagram(s, "parent", GetWindowIndex(thisParent),
+      nWidth, nDefWidth, nPadding, nMargin, nBorder)
+  }
+  else if (thisOpener)
+  {
+    s = AddToWindowDiagram("", "opener", GetWindowIndex(thisOpener),
+      nWidth, nDefWidth, nPadding, nMargin, nBorder) + s;
+  }
+  return s;
+}
+
+function BreakURLForDisplay(url,n)
+{
+  // If the url is too long, break it into HTML lines
+  // of no more than n characters if possible
+
+  // TBD
+  if (isNaN(n)) n = 30;
+  if ((url) && (url.length > n))
+  {
+    var s = "", sLine = "", sLine2 = "";
+    var a = url.split("/");
+    var a2 = null;
+    var i = 0, j = 0;;
+    for (i=0;i<a.length;i++)
+    {
+      sLine += a[i];
+      if (i < a.length - 1)
+      {
+        sLine += "/"
+      }
+      if ((sLine.indexOf("?") > 0) && (sLine.length > n))
+      {
+        p = sLine.indexOf("?");
+        s += sLine.substr(0,p) + "?<br />";
+        sLine = sLine.substr(p+1);
+      }
+      if (i > 0)
+      {
+        if (sLine.length + a[i].length > n)
+        {
+          sLine += "<br />";
+          s += sLine;
+          sLine = "";
+        }
+      }
+    }
+    s += sLine;
+    return s;
+  }
+  return url;
+}
+
+function MakeWindowInfoTable()
+{
+  var sAPI = '\n<div class="APIblock"><span class="boxed">' +
+    '<small>&nbsp;#1&nbsp;<\/small><\/span><\/div>\n';
+  var s = '\n<div class="Caption">' +
+    gsWINDOW_CONTEXT_DETAILS_HEADING +
+    '\n<\/div>\n' +
+    '<table width="100%" border="1">' +
+    '<tr>' +
+    '<th>#<\/th>' +
+    '<th>'+ gsWINDOW_NAME + '<\/th>' +
+    '<th>'+ gsPARENT + '<\/th>' +
+    '<th>'+ gsOPENER + '<\/th>' +
+    '<th>'+ gsSCORM_API_OBJECT + '<\/th>' +
+    '<th>'+ gsWINDOW_TITLE + '<\/th>' +
+    '<th>'+ gsWINDOW_URL + '<\/th>' +
+    '<\/tr>';
+
+  var wi = null;
+  for (var i=0;i<gaWindowInfo.length;i++)
+  {
+    wi = gaWindowInfo[i];
+
+    s += '<tr style="background-color:' + wi.shade + ';">' +
+         '<td>' + (i + 1) + '<\/td>' +
+         '<td>'+ ((wi.Name.length>0)?wi.Name:gsNOT_AVAILABLE) +
+         '<\/td><td align="center" style="background-color:';
+    if (wi.Parent)
+    {
+      s += gaWindowInfo[GetWindowIndex(wi.Parent)].shade + ';">' +
+           (GetWindowIndex(wi.Parent) + 1);
+    }
+    else
+    {
+      s += '#ddd">' + gsNONE;
+    }
+    s += '<\/td><td align="center" style="background-color:'
+    if (wi.Opener)
+    {
+      s += gaWindowInfo[GetWindowIndex(wi.Opener)].shade + ';">' +
+           (GetWindowIndex(wi.Opener) + 1);
+    }
+    else
+    {
+      s += '#ddd">' + gsNONE;
+    }
+    s += '<\/td><td';
+    if ((wi.bHasIEEEAPI)||(wi.bHasSCORM12API))
+    {
+      s += ' class="APIblock">' +
+           ((wi.bHasIEEEAPI)?pseudoPrintf(sAPI,"2004"):'') +
+           ((wi.bHasSCORM12API)?pseudoPrintf(sAPI,"1.2"):'');
+    }
+    else if (false) // (i==0)
+    {
+      s += '><div class="SCOblock" align="center">SCO<\/div>';
+    }
+    else
+    {
+      s += '>&nbsp;';
+    }
+    s += '<\/td>' +
+         '<td>' + ((wi.Title.length>0)?wi.Title:"&nbsp;") + '<\/td>' +
+         '<td>' + ((wi.bSameDomain)?BreakURLForDisplay(wi.URL):gsACCESS_DENIED)+
+         '<\/td>' +
+         '<\/tr>';
+  }
+  s += '<\/table>' +
+       '\n<div class="Annotation">' +
+       gsWINDOW_TABLE_EXPLANATION +
+       '\n<\/div>';
+  return s;
+}
+
+
+function MakeWindowCloseInfo()
+{
+  var bDisallowed = ((window.parent) && (window.parent!= window));
+
+  var s = '\n<div class="Caption">#1\n<\/div><p>#2<\/p>\n';
+  return pseudoPrintf(s,gsWindowClosingINFO_HEADING,
+    ((gAPIObj)?((bDisallowed)?gsNOT_ALLOWED_TO_CLOSE:gsALLOWED_TO_CLOSE):
+      gsWINDOW_NO_API_NO_CLOSE_INFO))
+}
+
+function MakeAPIInfo()
+{
+  var s = '\n<div class="Caption">'+ gsAPI_INFO_HEADING + '\n<\/div><p>';
+  if (!gAPIObj)
+  {
+    s += gsFOUND_NO_API;
+  }
+  else
+  {
+    // Maybe more than on API instance was found
+    var nAPI2004 = 0;
+    var nAPI12 = 0;
+    for (var i=0;i<gaWindowInfo.length;i++)
+    {
+      if (gaWindowInfo[i].bHasIEEEAPI)
+      {
+        nAPI2004++;
+      }
+      if (gaWindowInfo[i].bHasSCORM12API)
+      {
+        nAPI12++;
+      }
+    }
+    // Complicated depending on what we found
+    if ((nAPI2004 > 0) && (nAPI12 > 0))
+    {
+      s += gsAPI_FOUND_MIXT + ' ' + gsAPI_SEE_DIAGRAM;
+      s += '<\/p><p>' + gsAPI_USED_LABEL + ' ' + gAPIVersion;    }
+    else if ((nAPI2004 > 1) || (nAPI12 > 1))
+    {
+      s += gsAPI_FOUND_MULTIPLE + ' ' + gsAPI_SEE_DIAGRAM;
+      s += '<\/p><p>' + gsAPI_USED_LABEL + ' ' + gAPIVersion;
+    }
+    else
+    {
+      s += gsAPI_FOUND_LABEL + ' ' + gAPIVersion;
+    }
+    if ((typeof(gAPI1484version) != "undefined") &&
+        (gAPI1484version))
+    {
+      s += '&nbsp; ' + gsAPI_API_VERSION_LABEL + ' '
+      + gAPI1484version;
+    }
+    s += '<\/p><p>';
+    s += (gbAPIInSession)? gsAPI_COMM_ACTIVE : gsAPI_COMMINACTIVE;
+    if (gbAPISessionFinished)
+    {
+      s += ' ' + gsAPI_COMM_FINISHED;
+    }
+  }
+  s += '<\/p>\n';
+  return s;
+}
+
+
+function MakeButtonCallingParent(sLabel, sOnClick)
+{
+  return pseudoPrintf('\n<input type="button" class="btn" value="#1" ' +
+    ' onclick="window.parent.#2" /> ', sLabel, sOnClick);
+}
+
+function MakeCheckBox(sId, sValue, sTxt, bChecked, sOnClick)
+{
+  if (typeof(bChecked) == "undefined") bChecked = false;
+  var s = pseudoPrintf('\n<input type="checkbox" id="#1" value="#2" #3 #4'+
+    '/>&nbsp;#5',
+    sId, sValue, ((bChecked)? ' checked ':""),
+    (((sOnClick) && (sOnClick != ""))? s += ' onclick="' + sOnClick + '" ':""),
+    sTxt);
+  return s;
+}
+
+function MakeCheckBoxCallingParent(sId, sValue, sTxt, bChecked, sOnClick)
+{
+  return MakeCheckBox(sId, sValue, sTxt, bChecked, 'window.parent.' + sOnClick);
+}
+
+function MakeProdderForm()
+{
+  var s = '' +
+    '<form action="null" onsubmit="return false;">' +
+    '\n<div id="LogControlsInProdder" style="float:right; width:100px">' +
+    MakeCheckBoxCallingParent("LogOKProd", "Activate Logging", gsCHKBOXLOG, gbUseLog,
+    'SetActivateLogging(this.checked)') +
+    '<br />'+
+    '<a href="JavaScript:window.parent.PrintLog()">Print&nbsp;log<\/a> ' +
+    '<a href="JavaScript:window.parent.RESETLog()">Clear&nbsp;log<\/a> ' +
+    '\n<\/div>\n' +
+    '<div>' +
+    '\n<fieldset><legend>'+ gsSESSION_LEGEND + '<\/legend><p>' +
+    MakeButtonCallingParent('Initialize', 'TestInitialize()') +
+    MakeButtonCallingParent('Commit', 'TestCommit()') +
+    MakeButtonCallingParent('Terminate', 'TestTerminate()') +
+    ' <small><span id="SessionTimeDisplay">&nbsp;<\/span><\/small>' +
+    '<\/p>\n' +
+    '<\/fieldset>' +
+    '\n<fieldset><legend>'+ gsERROR_LEGEND + '<\/legend><div>' +
+    gsERROR_NUMBER_LABEL +
+    ' \n<input id="ErrorNumber" size="3" />' +
+    MakeButtonCallingParent(gsBTN_GET_ERROR_INFO, 'TestGetErrorStatus()') +
+    '\n<\/div>\n' +
+    '\n<div id="ErrorStatus">' +
+    gsRESULT_WILL_APPEAR_HERE +
+    '\n<\/div><\/fieldset>\n' +
+    '\n<fieldset><legend>SetValue<\/legend>' +
+    '\n<div id="SetValueDiv">' +
+    '\n<input id="SetElementName" size="64" value="' +
+    gsENTER_NAME_OF_DATA_ELEMENT_HERE +
+    '"/>' +
+    MakeButtonCallingParent('SetValue', 'TestSetValue()') +
+    '<div class="valuebox">\n' +
+    '<textarea class="valuebox" id="TextSetValue" cols="60" rows="5">' +
+    gsENTER_VALUE_TO_SET_HERE +
+    '<\/textarea><\/div>' +
+    '\n<\/div>\n' +
+    '\n<div id="SetValueResult">' +
+    gsRESULT_WILL_APPEAR_HERE +
+    '&nbsp;' +
+    '\n<\/div><\/fieldset>\n' +
+    '\n<fieldset><legend>GetValue<\/legend>' +
+    '\n<div id="GetValueDiv">' +
+    '\n<input id="GetElementName" size="64" value="' +
+    gsENTER_NAME_OF_DATA_ELEMENT_HERE +
+    '" />' +
+    MakeButtonCallingParent('GetValue', 'TestGetValue()') +
+    '<br />\n' +
+    '\n<div id="GetValueReturn">' +
+    gsRESULT_WILL_APPEAR_HERE +
+    '\n<\/div><\/fieldset>\n' +
+    '\n<\/div>\n' +
+    '<\/form>'
+
+  return s;
+}
+
+function MakeRunScriptForm()
+{
+  var n = parseInt(GetCookie("ScriptDelay"))
+  if (!isNaN(n)) gnScriptDelay = n;
+
+  var sTestScript = GetCookie("TestScript");
+  if (sTestScript == "") sTestScript = gsSCRIPT_DEFAULT_TEXT;
+
+  var sDownloadBtnVisibility = ((gbAllowDownloadScripts)?'inherit':'hidden');
+
+  var s = '' +
+    '<form action="" id="RunScriptForm" onsubmit="return false;">' +
+    '\n<div id="LogControlsInRunScript" style="float:right; width:100px">' +
+    MakeCheckBoxCallingParent("LogOKScript", "Activate Logging", gsCHKBOXLOG, gbUseLog,
+    'SetActivateLogging(this.checked)') +
+    '<br />'+
+    '<a href="JavaScript:window.parent.PrintLog()">Print&nbsp;log<\/a> ' +
+    '<a href="JavaScript:window.parent.RESETLog()">Clear&nbsp;log<\/a> ' +
+    '\n<\/div>\n' +
+    '\n<p>' +
+    '&nbsp; \n<input id="HelpScript" type="button" class="btn" ' +
+    'value="' + gsBTN_HELP_RUN_SCRIPT + '"' +
+    'onclick="window.parent.TestHelpScript()" /> ' +
+    '&nbsp; \n<input id="DemoScript" type="button" class="btn" ' +
+    'value="' + gsBTN_DEMO_SCRIPT + '"' +
+    ' onclick="window.parent.TestScriptGenerateDemo()" /> ' +
+    '&nbsp; \n<input id="DownloadScript" type="button" class="btn" ' +
+    'value="' + gsBTN_DOWNLOAD_SCRIPT + '"' +
+    ' onclick="window.parent.PromptForScriptUrl()" ' +
+    'style="visibility:' + sDownloadBtnVisibility + '" /> ' +
+    '\n<\/p>\n' +
+    '\n<div id="RunScriptSource"><div>' +
+    '<fieldset><legend>' +
+    gsAUTOMATED_SCRIPT +
+    '<\/legend>' +
+    '<div id="ScriptBox" class="scriptbox">\n' +
+    '<textarea class="scriptbox" id="ScriptSource" cols="60" rows="8">' +
+    sTestScript +
+    '<\/textarea><\/div>' +
+    '<div id="ScriptPlay" class="scriptplay">-<\/div>' +
+    '\n<span id="ScriptControls">' +
+    '<p>' +
+    '\n<input id="btnStepScript" type="button" class="btn" value="'+ gsBTN_STEP_SCRIPT+'"' +
+    ' onclick="window.parent.TestScriptStep()" /> ' +
+    '\n<input id="btnRunScript" type="button" class="btn" value="'+ gsBTN_RUN_SCRIPT+'"' +
+    ' onclick="window.parent.TestScriptRun()" /> ' +
+    '\n<input id="btnPauseScript" type="button" class="btn" value="' + gsBTN_PAUSE_SCRIPT + '"' +
+    ' onclick="window.parent.TestScriptPause()" /> ' +
+    '\n<input id="btnCancelScript" type="button" class="btn" value="' + gsBTN_CANCEL_SCRIPT + '"' +
+    ' onclick="window.parent.TestScriptCancel()" /> ' +
+    gsSCRIPT_INTERVAL_LABEL +
+    ' \n<input id="TestScriptInterval" size="3" value="' +
+    gnScriptDelay +
+    '" onkeydown="if(event.keyCode==13)event.keyCode=9" /> ms' +
+    '<\/p><\/span><p><span id="ScriptCounter"><\/span><\/p>\n' +
+    '\n<\/fieldset><\/div>' +
+    '<\/form>'
+  return s;
+}
+
+function MakeOptionsForm()
+{
+  // placeholders for possible future form
+  //return "No options implemented yet";
+
+  var s = '' +
+    '<form action="null" id="OptionsForm" onsubmit="return false;">'+
+  // '\n<div id="LogControlsInOptions" style="float:right; width:100px">' +
+    '<p>' +
+    MakeCheckBoxCallingParent("LogOKOptions", "Activate Logging", gsCHKBOXLOG, gbUseLog,
+    'SetActivateLogging(this.checked)') +
+    '<br />'+
+    '<a href="JavaScript:window.parent.PrintLog()">Print&nbsp;log<\/a> &nbsp;' +
+    '<a href="JavaScript:window.parent.RESETLog()">Clear&nbsp;log<\/a> ' +
+    '<br \/>&nbsp;' +
+    '<\/p>\n'+
+  // '\n<\/div>\n' +
+    '\n<fieldset><legend>' +
+    gsCOOKIEOPTION +
+    '\n<\/legend>\n' +
+    '<p>' +
+    MakeCheckBoxCallingParent("CookieOK", "Allow cookie", gsCHKBOXCOOKIE, gbUseCookie,
+     'SetAllowCookie(this.checked)') +
+    '<\/p><\/fieldset>\n' +
+    '\n<fieldset><legend>' +
+    gsADVANCEDOPTION +
+    '\n<\/legend>\n' +
+    '<p>' +
+    MakeCheckBoxCallingParent("ScriptDownloadOK", "Allow script download",
+     gsCHKBOXDOWNLOADSCRIPTS, gbAllowDownloadScripts,
+     'SetAllowScriptDownload(this.checked)') +
+    '<\/p><\/fieldset>\n' +
+    '<\/form>'
+  return s;
+}
+
+
+function BuildForms()
+{
+  // Create the set of tabbed forms, all hidden by default.
+  // Changing forms will only show and hide so that state
+  // can be maintained while flipping back and forth.
+  var sStyle = '<style type="text/css">' +
+    'div.ProdderForm {position: absolute; ' +
+    'left:0; top:0; padding:3px;' +
+    'visibility: hidden;}\n ' +
+    '<\/style>';
+
+  var s = '' +
+    '\n<div id="RTEContext" class="ProdderForm">' +
+    'RTE' +
+    '\n<\/div>\n' +
+    '\n<div id="APIProdder" class="ProdderForm">' +
+    MakeProdderForm() +
+    '\n<\/div>\n' +
+    '\n<div id="RunScript" class="ProdderForm">' +
+    MakeRunScriptForm() +
+    '\n<\/div>\n' +
+    '\n<div id="Options" class="ProdderForm">' +
+    MakeOptionsForm() +
+    '\n<\/div>\n' +
+    '\n<div id="Help" class="ProdderForm">' +
+    gsHELPTEXT +
+    '\n<\/div>\n'
+  SetWindowDoc(wndForms, MakeWebPage(s, "SCORM API Prodder Forms", sStyle));
+}
+
+function ChooseForm(which)
+{
+  var doc = wndForms.document;
+  if (which == "RTEContext")
+  {
+    ShowRTEInfo();
+  }
+  if ((which == "RTEContext") ||
+      (which == "APIProdder") ||
+      (which == "RunScript") ||
+      (which == "Options") ||
+      (which == "Help"))
+  {
+    if (which != "RTEContext")
+    {
+      doc.getElementById("RTEContext").style.visibility = "hidden";
+    }
+    if (which != "APIProdder")
+    {
+      doc.getElementById("APIProdder").style.visibility = "hidden";
+    }
+    if (which != "RunScript")
+    {
+      doc.getElementById("RunScript").style.visibility = "hidden";
+    }
+    if (which != "Options")
+    {
+      doc.getElementById("Options").style.visibility = "hidden";
+    }
+    if (which != "Help")
+    {
+      doc.getElementById("Help").style.visibility = "hidden";
+    }
+    doc.getElementById(which).style.visibility = "visible";
+  }
+  doc = wndToolBar.document;
+  var a = doc.getElementsByTagName("INPUT");
+  for (var i=0;i<a.length;i++)
+  {
+    if (a[i].value == which) a[i].checked = true;
+  }
+  a = doc.getElementsByTagName("SPAN");
+  for (i=0;i<a.length;i++)
+  {
+     if (a[i].id == "Tab" + which) a[i].style.background = "#e0f0c0";
+    else a[i].style.background = "#b0c090";
+  }
+
+  try // FireFox has intermittent trouble with this
+  {
+    wndForms.scrollTo(0,0);
+    wndForms.focus();
+  }
+  catch (e) { }
+}
+
+function ResetForms()
+{
+  init();
+}
+
+//// FLAGS STUFF /////
+
+function UpdateFlagsWindow()
+{
+  var sStyle = '<style type="text/css">' +
+    'body {background: black; padding:0; margin:0;' +
+    'font-size: 20px; font-weight: bold; text-align: center;}\n ' +
+    'div {text-align: center; margin:0; width:100%; ' +
+    'border: solid black; border-width: 0 0 2px 0;' +
+    'padding: 0; }\n' +
+    'div.OK {background: ' + gsCOLOR_OK + ';}\n' +
+    'div.notOK {background: #f00;}\n' +
+    'div.strike {text-decoration: line-through;}\n' +
+    '<\/style>';
+  var s = '\n<div class="';
+  if (!gAPIObj) s += 'strike not'
+  s += 'OK">API';
+  if (gAPIObj)
+  {
+    s += '<font size="1"><div>\n'
+    s += (gAPIVersion == "SCORM 2004")? '2004':'1.2';
+    s += '<div><\/font>'
+  }
+  s += '\n<\/div>\n<div class="';
+  if (gbAPIInSession)
+  {
+    s += 'OK">&gt;=&lt;';
+    //s += 'OK">]==[';
+  }
+  else
+  {
+    s += 'notOK">&gt;X&lt;';
+    //s += 'notOK">]X[';
+  }
+  s += '\n<\/div>';
+  if (gAPIObj)
+  {
+    ((gnAPIError != 0)? s += '\n<div class="notOK"><small>'+gnAPIError+'<\/small>':s += '\n<div class="OK">OK');
+    s += '<\/span>';
+    wndForms.document.getElementById("ErrorNumber").value = gnAPIError;
+  }
+  //alert(s)
+  SetWindowDoc(wndFlags, MakeWebPage(s, "SCORM API Prodder Flags", sStyle));
+}
+
+//// LOG STUFF /////
+
+function RESETLog()
+{
+  gsLog = "";
+  UpdateLogWindow()
+}
+
+function PrintLog()
+{
+  wndLog.focus();
+  wndLog.print();
+}
+
+function AppendToLog(s, special)
+{
+  if (!gbUseLog)
+  {
+    return;
+  }
+  if (gbLogOverwrite)
+  {
+    gsLog = '';
+    if ((s != gsLOG_HERE ) &&
+        (s != gsRUN_SCRIPT_NONSENSE_WITHOUT_API)) gbLogOverwrite = false;
+  }
+  switch(special)
+  {
+    case "error":
+      s = pseudoPrintf(gsLOG_COLORIZE_RED,s)
+      break;
+    default:
+      // nothing defined yet
+  }
+
+  gsLog += '\n<div>' + s + '\n<\/div>\n'
+  if (gsLog.length > 64000)
+  {
+    alert(gsLOG_TOO_BIG_PROMPT);
+    // Brute force trimming from the beginning.
+    gsLog = gsLog.substr(32000, gsLog.length-1);
+  }
+  UpdateLogWindow();
+}
+
+function GetSelection(wnd)
+{
+  // Inspired by sample at www.quirksmode.org
+  if (!wnd) wnd = window;
+  var s = "";
+  if (wnd.getSelection)
+  {
+    s = wnd.getSelection();
+  }
+  else if (wnd.document.getSelection)
+  {
+    s = wnd.document.getSelection();
+  }
+  else if (wnd.document.selection)
+  {
+    s = wnd.document.selection.createRange().text;
+  }
+  return s;
+}
+
+function GrabLogText()
+{
+  var s = null;
+  var wnd = wndLog;
+  var doc = wnd.document;
+  window.top.status = "grab";
+  if (wnd.getSelection)
+  {
+    s = wnd.getSelection();
+  }
+  else if (doc.getSelection)
+  {
+    s = doc.getSelection();
+  }
+  else if ((doc.selection)&&(doc.selection.createRange))
+  {
+    s = doc.selection.createRange().text;
+  }
+  s = s.toString();
+  if (s.length > 0)
+  {
+    var a = s.split('\n');
+    if ((a.length > 0) && (a.length < 3))
+    {
+      s = a[0];
+      var bGet = false;
+      var bSet = false;
+      a = s.split('"');
+      if (a.length > 1)
+      {
+        if ((a[0].indexOf(".") == -1)&&(a[1].indexOf(".") > 0))
+        {
+          s = a[1];
+        }
+        if (a[1] != "")
+        {
+          if (a[0].toUpperCase().indexOf("GETVALUE") > -1)
+          {
+            bGet = true;
+          }
+          else if (a[0].toUpperCase().indexOf("SETVALUE") > -1)
+          {
+            bSet = true;
+          }
+          s = a[1];
+        }
+      }
+      var doc = wndForms.document;
+      if (bGet)
+      {
+        doc.getElementById("GetElementName").value = s;
+      }
+      else if (bSet)
+      {
+        doc.getElementById("SetElementName").value = s;
+        if (a[3])
+        {
+          doc.getElementById("TextSetValue").value = a[3];
+        }
+      }
+      else
+      {
+        doc.getElementById("GetElementName").value = s;
+        doc.getElementById("SetElementName").value = s;
+      }
+    }
+  }
+  return true;
+}
+
+function UpdateLogWindow()
+{
+  var sStyle = '<style type="text/css">' +
+    'body {background: #d0e0b0;}\n ' +
+    'div {font-size: xx-small;}\n ' +
+    '<\/style>';
+  SetWindowDoc(wndLog, MakeWebPage(gsLog, document.title + " Log", sStyle));
+  wndLog.document.onmouseup = self.GrabLogText;
+  if ((!document.all) && (!wndLog.document.onmouseup))
+  {
+    wndLog.document.captureEvents(Event.MOUSEUP);
+  }
+  wndLog.scrollTo(0,300000);
+  setTimeout("ScrollLogToBottom()",100);
+}
+
+function ScrollLogToBottom()
+{
+  wndLog.scrollTo(0,300000);
+}
+
+function init()
+{
+  InitFromCookies();
+  CollectWindowInfo(window);
+  BuildToolBar();
+  BuildForms();
+  //ShowRTEInfo();
+  ChooseForm("RTEContext");
+  AppendToLog(gsLOG_HERE );
+  UpdateLogWindow();
+  UpdateFlagsWindow();
+}
+//]]>
+</script>
+</head>
+
+  <!-- The following form is not supported by Tidy and may need
+      to be reapplied after using Tidy to clean up.
+      <frameset rows="24,*" frameborder="0" border="0">
+  -->
+
+<frameset rows="*,100" onload="init()">
+
+  <frameset rows="24,*" frameborder="0" border="0">
+    <frame id="wndToolBar" name="wndToolBar" src="about:blank"
+    marginheight="0" scrolling="no" />
+    <frame id="wndForms" name="wndForms" src="about:blank"
+    marginheight="0" scrolling="auto" />
+  </frameset>
+
+  <frameset cols="40,*">
+    <frame id="wndFlags" name="wndFlags" src="about:blank"
+    scrolling="no" />
+    <frame id="wndLog" name="wndLog" src="about:blank" marginwidth=
+    "0" scrolling="auto" />
+  </frameset>
+
+  <noframes>
+    <body>
+      <p>This web page is used for SCORM diagnostics. Because of
+      the way it functions it requires a frame-enabled browser.</p>
+
+      <div>
+        <noscript>
+        <p>This web page is used for SCORM diagnostics. It requires
+        JavaScript to function because of the way it examines the
+        DOM and uses JavaScript calls to do its work and
+        dynamically generate its displays. If you cannot use
+        JavaScript you should not use this web page.</p></noscript>
+      </div>
+    </body>
+  </noframes>
+</frameset>
+</html>

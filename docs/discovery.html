@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>LMS Test Content Package API | Drupal</title>
+    <script type="text/javascript">
+      var MAX_PARENTS_TO_SEARCH = 500;
+
+      /**
+       * ScanParentsForApi
+       * 
+       * Searches all the parents of a given window until it finds an object named 
+       * "API_1484_11". If an object of that name is found, a reference to it is 
+       * returned. Otherwise, this function returns null.
+       */
+      function ScanParentsForApi(win) {
+        /** 
+         * Establish an outrageously high maximum number of parent windows that we are 
+         * will to search as a safe guard against an infinite loop. This is probably not
+         * strictly necessary, but different browsers can do funny things with undefined
+         * objects.
+         */
+        var nParentsSearched = 0;
+
+        /**
+         * Search each parent window until we either:
+         * -find the API,
+         * -encounter a window with no parent (parent is null or the same as the current
+         *  window)
+         * -or, have reached our maximum nesting threshold
+         */
+        while ((win.API_1484_11 == null) && (win.parent != null) && (win.parent != win) && (nParentsSearched <= MAX_PARENTS_TO_SEARCH)) {
+          nParentsSearched++;
+          win = win.parent;
+        }
+
+        /**
+         * If the API doesn't exist in the window we stopped looping on, then this will 
+         * return null.
+         */
+        return win.API_1484_11;
+      }
+
+      /**
+       * GetAPI
+       * -Searches all parent and opener windows relative to the current window for 
+       * the SCORM 2004 API Adapter.
+       * Returns a reference to the API Adapter if found or null otherwise.
+       */
+      function GetApi() {
+        var API = null;
+
+        //Search all the parents of the current window if there are any
+        if ((window.parent != null) && (window.parent != window)) {
+          API = ScanParentsForApi(window.parent);
+        }
+
+        /**
+         * If we didn't find the API in this window's chain of parents, then search 
+         * all the parents of the opener window if there is one
+         */
+        if ((API == null) && (window.top.opener != null)) {
+          API = ScanParentsForApi(window.top.opener);
+        }
+          
+        return API;
+      }
+
+      /**
+       * Sample usage
+       */
+      var objScormApi;
+      objScormApi = GetApi(); 
+
+      // If we didn't find the API, alert the user note - you might want to disable 
+      // future attempts at calling API functions at this point
+      if (objScormApi == null){
+        alert('Error finding API instance');
+      }
+
+      objScormApi.Initialize("");
+      objScormApi.GetValue("cmi.entry");
+      objScormApi.SetValue("cmi.exit","suspend");
+      objScormApi.GetValue("cmi.completion_status");
+      objScormApi.GetValue("cmi.success_status");
+      objScormApi.GetValue("cmi.score.scaled");
+      //The next call shows how some syntax errors
+      //can get caught by the diagnostic SCO locally.
+      objScormApi.SetValue("cmi.score.scaled,7");
+      objScormApi.SetValue("cmi.completion_status","incomplete");
+      objScormApi.Commit("");
+      objScormApi.GetValue("cmi.scaled_passing_score");
+      objScormApi.SetValue("cmi.score.scaled","0.94");
+      //The next 2 calls should show how a SCORM conformant
+      //RTE overrides success status if the score reported by
+      //the SCO is lower than the passing score.
+      objScormApi.SetValue("cmi.success_status","failed");
+      //A conformant RTE will change failed to passed
+      //because score is higher than the passing score.
+      objScormApi.GetValue("cmi.success_status");
+      objScormApi.SetValue("cmi.exit","");
+      objScormApi.Terminate("");
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

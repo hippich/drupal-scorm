@@ -1,0 +1,10 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * SCORM 2004 Run-Time Environment (RTE)
+ *
+ * @author
+ * Stefan Auditor <stefan.auditor@erdfisch.de>
+ */

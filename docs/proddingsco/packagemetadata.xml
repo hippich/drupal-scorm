@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lom xmlns="http://ltsc.ieee.org/xsd/LOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ltsc.ieee.org/xsd/LOM lomco.xsd">
+  <general>
+    <identifier>
+      <catalog>URN</catalog>
+      <entry>urn:ostyn.com:AFE980F6-DD3A-11DA-9B41-B622A1EF5456</entry>
+    </identifier>
+    <title>
+      <string language="en">SCORM Diagnostic SCO</string>
+    </title>
+    <description>
+      <string language="en">This package contains a single SCO that can be used to inspect and diagnose a SCORM runtime environment. When launched, the SCO recognizes whether it is running in a SCORM environment and displays information about the environment, including the windows encountered in a search for an API instance object using the standard API discovery algorithm. You can initialize and terminate a communication session with the SCORM API and you can exercise the API by playing with SetValue and GetValue with the parameters appropriate for the version of SCORM that was detected, or by playing a script.
+</string>
+    </description>
+    <keyword>
+      <string language="en">Diagnostic</string>
+    </keyword>
+    <keyword>
+      <string language="en">Test</string>
+    </keyword>
+    <keyword>
+      <string language="en">SCORM</string>
+    </keyword>
+    <keyword>
+      <string>SCO</string>
+    </keyword>
+    <structure>
+      <source>LOMv1.0</source>
+      <value>atomic</value>
+    </structure>
+  </general>
+  <lifeCycle>
+    <version>
+      <string>1.99.5 beta</string>
+    </version>
+    <status>
+      <source>LOMv1.0</source>
+      <value>final</value>
+    </status>
+      <contribute>
+        <role>
+          <source>LOMv1.0</source>
+          <value>author</value>
+        </role>
+        <entity>
+BEGIN:VCARD
+FN:Claude Ostyn
+END:VCARD</entity>
+        <date>
+           <dateTime>2007-01-19</dateTime>
+         </date>
+      </contribute>
+   </lifeCycle>
+  <metaMetadata>
+    <identifier>
+      <entry>anything</entry>
+    </identifier>
+    <metadataSchema>LOMv1.0</metadataSchema>
+    <metadataSchema>SCORM_CAM_v1.3</metadataSchema>
+  </metaMetadata>
+  <technical>
+    <format>text-html</format>
+  </technical>
+  <rights>
+    <cost>
+      <source>LOMv1.0</source>
+      <value>no</value>
+    </cost>
+    <copyrightAndOtherRestrictions>
+      <source>LOMv1.0</source>
+      <value>yes</value>
+    </copyrightAndOtherRestrictions>
+  </rights>
+</lom>

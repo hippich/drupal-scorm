@@ -1,0 +1,219 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * SCORM 2004 Sharable Content Object (SCO)
+ *
+ * This module adds to the sco type create node form allowing you to upload an sco in zip format.
+ * After succesful upload it unpacks the sco and parses the imsmanifest.xml file and loads data
+ * from that file into the database which is pertinent to the launch of that sco.
+ * You need to create an sco content type and also have the upload module active.
+ *
+ * @author
+ * Stefan Auditor <stefan.auditor@erdfisch.de>
+ */
+
+define("SCORM_SCO_DIRECTORY", 'scorm');
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function sco_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  if (!$scorm_is_object = variable_get('scorm_is_object_story', FALSE)) {
+    return;
+  }
+  
+  switch ($op) {
+    case 'load':
+      //TODO: check if imsmanifest exists and if, add set $node->scorm['imsmanifest'] = TRUE.
+      $node->scorm['type'] = 'audio';
+      $node->scorm['type'] = 'imsmanifest';
+      $node->scorm['type'] = 'html';
+      $node->scorm['type'] = 'video';
+      break;
+    case 'view':
+      $view_mode = variable_get('scorm_view_mode', 2);
+      if (($view_mode == 1 && $a3 == 1) || ($view_mode == 2 && !$a3) || $view_mode == 3) {
+        //TODO: check for file to attach, if not available attach a generic tracking js
+        $node->content['#prefix'] = '<div id="API_1484_11">';
+        
+        switch ($node->scorm['type']) {
+          case 'imsmanifest':
+            $node->content['sco'] = array(
+              '#value' => theme('sco', $node),
+              '#weight' => 0,
+            );
+            break;
+          case 'audio':
+            if (module_exists('flowplayer_simple') || module_exists('flowplayer')) {
+              drupal_add_js(drupal_get_path('module', 'scorm') . '/sco.scorm.js');
+            }
+            break;
+          case 'video':
+            if (module_exists('flowplayer_simple') || module_exists('flowplayer')) {
+              drupal_add_js(drupal_get_path('module', 'scorm') . '/sco.scorm.js');
+            }
+            break;
+          case 'html':
+          default:
+            drupal_add_js(drupal_get_path('module', 'scorm') . '/sco.scorm.js');
+            break;
+        }
+
+        $node->conent['#suffix'] = '</div>';
+      }
+      break;
+    case 'insert':
+    case 'update':
+      $imsmanifest = NULL;
+      $directory = file_directory_path() .'/'. SCORM_SCO_DIRECTORY;
+      if (file_check_directory($directory, TRUE) AND count($node->files)) {
+        if ($file = sco_unpack($node)) {
+          $imsmanifest = sco_parse_imsmanifest($file->imsmanifest);
+          if (is_object($imsmanifest)) {
+            //dsm($imsmanifest);
+            //dsm($file);
+          }
+          db_query("INSERT INTO {cmi_sco} SET nid = %d, completion_threshold = '%s', launch_data = '%s', max_time_allowed = '%s', scaled_passing_score = '%F', time_limit_action = '%s'", $node->nid, $imsmanifest->completion_threshold, $imsmanifest->launch_data, $imsmanifest->max_time_allowed, $imsmanifest->scaled_passing_score, $imsmanifest->time_limit_action);
+        }
+      }
+      if (!$imsmanifest->imsmanifest) {
+        db_query("INSERT INTO {cmi_sco} SET nid = %d, time_limit_action = '%s'", $node->nid, 'continue,no message');
+      }
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function sco_form_alter(&$form, &$form_state, $form_id) {
+  if (!$scorm_is_object = variable_get('scorm_is_object_' . $form['type']['#value'], FALSE)) {
+    return;
+  }
+  
+  if (strpos($form_id, '_node_form')) {
+    $form['attachments']['#collapsed'] = FALSE;
+    $form['attachments']['#weight'] = 0;
+    $form['attachments']['#title'] = t('Sharable Content Object');
+    $form['attachments']['#description'] = t('<div>A SCO is a collection of one or more Assets that represent a single launchable learning resource. Only the first *.zip file will be consired a SCO.</div>') . $form['attachments']['#description'];
+    $form['attachments']['wrapper']['new']['upload']['#title'] = t('Attach new SCO');
+  }
+}
+
+/**
+ * Unpack a packed SCO
+ */
+function sco_unpack($node) {
+  $files = $node->files;
+  $imsmanifest = FALSE;
+
+  foreach ($files as $fid => $file) {
+    $file = (array) $file;
+
+    //drupal_set_message(print_r($file, 1));
+    switch ($file['filemime']) {
+      case 'application/zip':
+        $zip = new ZipArchive;
+        $directory = file_directory_path() .'/'. SCORM_SCO_DIRECTORY .'/'. $file['fid'];
+        if ($zip->open($file['filepath']) === TRUE) {
+          $zip->extractTo($directory);
+          $zip->close();
+
+          // Search for imsmanifest.xml
+          $mask = '^(imsmanifest.xml)$';
+          $imsmanifest = file_scan_directory($directory, $mask);
+          return (object) array('fid' => $file->fid, 'imsmanifest' => $imsmanifest);
+        }
+        break;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ *
+ */
+function sco_parse_imsmanifest($file) {
+  if (count($file)) {
+    $filepath = key($file);
+
+    $handle = fopen($filepath, "r");
+    $contents = fread($handle, filesize($filepath));
+    fclose($handle);
+
+    $xml = new SimpleXMLElement($contents);
+    $xml->registerXPathNamespace('imscp', 'http://www.imsglobal.org/xsd/imscp_v1p1');
+    //drupal_set_message('<pre>data:'. print_r(($xml), 1) .'</pre>');
+
+    $xpath = "//imscp:organizations/@default";
+    $default = $xml->xpath($xpath);
+    $default = (array) $default[0];
+    $default = $default['@attributes']['default'];
+
+    $xpath = "//imscp:organization[@identifier='". $default ."']";
+    $identifierref = $xml->xpath($xpath);
+    $identifierref = (array) $identifierref[0]->item;
+    $identifierref = $identifierref['@attributes']['identifierref'];
+
+    $xpath = "//imscp:resource[@identifier='". $identifierref ."']/@href";
+    $resource = $xml->xpath($xpath);
+    $resource = (array) $resource[0];
+    $values->default_resource = $resource['@attributes']['href'];
+
+    $xpath = "//adlcp:completionThreshold";
+    $completion_threshold = $xml->xpath($xpath);
+    $completion_threshold = (array) $completion_threshold[0];
+    $values->completion_threshold = $completion_threshold[0];
+
+    $xpath = "//imscp:item/imsss:sequencing/imsss:objectives/imsss:primaryObjective/@satisfiedByMeasure";
+    $satisfiedByMeasure = $xml->xpath($xpath);
+    $satisfiedByMeasure = (array) $satisfiedByMeasure[0];
+    $satisfiedByMeasure = $satisfiedByMeasure['@attributes']['satisfiedByMeasure'];
+    if ($satisfiedByMeasure == 'true') {
+      $xpath = "//imscp:item/imsss:sequencing/imsss:objectives/imsss:primaryObjective/imsss:minNormalizedMeasure";
+      $minNormalizedMeasure = $xml->xpath($xpath);
+      $minNormalizedMeasure = (array) $minNormalizedMeasure[0];
+      $minNormalizedMeasure = $minNormalizedMeasure[0];
+      $values->scaled_passing_score = $minNormalizedMeasure;
+      if (empty($values->scaled_passing_score)) {
+        $values->scaled_passing_score = 1.0; // default
+      }
+    }
+    else {
+      $values->scaled_passing_score = NULL;
+    }
+
+    $xpath = "//imscp:item/adlcp:timeLimitAction";
+    $time_limit_action = $xml->xpath($xpath);
+    $time_limit_action = (array) $time_limit_action[0];
+    $values->time_limit_action = $time_limit_action[0];
+    if (empty($values->time_limit_action)) {
+      $values->time_limit_action = 'continue,no message'; // default
+    }
+  }
+
+  return $values;
+}
+
+function theme_sco($node) {
+  drupal_add_css(drupal_get_path('module', 'scorm') . '/sco.css');
+  drupal_add_js(drupal_get_path('module', 'scorm') . '/discovery.scorm.js');
+  //$output = '<div id="API_1484_11">';
+  //$output .= '<iframe id="API_1484_11_iframe" name="scorm" src="'. base_path() . drupal_get_path('module', 'scorm_rte') .'/docs/proddingsco/proddingsco.htm"></iframe>';
+  //$output .= '</div>';
+  return $output;
+}
+
+/**
+ * Implement hook_theme().
+ */
+function sco_theme() {
+  return array(
+    'sco' => array(
+      'arguments' => array('node' => $node),
+    ),
+  );
+}

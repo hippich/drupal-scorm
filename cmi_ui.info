@@ -1,0 +1,5 @@
+; $Id$
+name = CMI - User Interface
+description = User Preferences for Scorm Content Delivery.
+package = "LMS"
+core = 6.x
