@@ -1669,7 +1669,7 @@ function cmi_set_score($params = array(), $data = array()) {
         $success = db_query($query, $item, $data[$item]['value'], $params['cscid']);
       }
       else {
-        $query = "INSERT INTO {cmi_score} (claid, '%s') VALUES (%d, %f)";
+        $query = "INSERT INTO {cmi_score} (claid, %s) VALUES (%d, %f)";
         $success = db_query($query, $item, $params['claid'], $data[$item]['value']);
 
         $query = "SELECT csc.cscid FROM {cmi_score} csc
