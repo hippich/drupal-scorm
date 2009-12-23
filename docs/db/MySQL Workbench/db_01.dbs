@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="MySql" version="42" database="MySql" >
+	<schema name="drpl_scorm" catalogname="drpl_scorm" defo="false" >
+		<table name="cmi_comments_from_learner" storage="engine=InnoDB" >
+			<column name="csid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="uid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="comment" type="VARCHAR" java_type="12" length="250" />
+			<column name="location" type="VARCHAR" java_type="12" length="250" />
+			<column name="timestamp" type="INT" java_type="4" length="11" />
+			<index name="csid" unique="NORMAL" >
+				<column name="csid" />
+			</index>
+			<fk name="fk_cmi_comments_from_learner" virtual="true" to_schema="drpl_scorm" to_table="users" >
+				<fk_column name="uid" pk="uid" />
+			</fk>
+			<fk name="fk_cmi_comments_from_learner_001" virtual="true" to_schema="drpl_scorm" to_table="cmi_sco" >
+				<fk_column name="csid" pk="csid" />
+			</fk>
+		</table>
+		<table name="cmi_interactions" storage="engine=InnoDB" >
+			<column name="ciid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="clsid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="id" type="TEXT" java_type="-1" length="65535" />
+			<column name="type" type="VARCHAR" java_type="12" length="15" />
+			<column name="timestamp" type="INT" java_type="4" length="11" />
+			<column name="weighting" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="learner_response" type="TEXT" java_type="-1" length="65535" />
+			<column name="result" type="TEXT" java_type="-1" length="65535" />
+			<column name="latency" type="VARCHAR" java_type="12" length="15" mandatory="true" >
+				<defo>PT0H0M0S</defo>
+			</column>
+			<column name="description" type="VARCHAR" java_type="12" length="250" />
+			<index name="pk_cmi_interactions" unique="PRIMARY_KEY" >
+				<column name="ciid" />
+			</index>
+			<fk name="fk_cmi_interactions" virtual="true" to_schema="drpl_scorm" to_table="cmi_learner_session" >
+				<fk_column name="clsid" pk="clsid" />
+			</fk>
+		</table>
+		<table name="cmi_interactions_correct_responses" storage="engine=InnoDB" >
+			<column name="cirid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="ciid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="pattern" type="TEXT" java_type="-1" length="65535" />
+			<index name="pk_cmi_interactions_correct_responses" unique="PRIMARY_KEY" >
+				<column name="cirid" />
+			</index>
+			<fk name="fk_cmi_interactions_correct_responses" virtual="true" to_schema="drpl_scorm" to_table="cmi_interactions" >
+				<fk_column name="ciid" pk="ciid" />
+			</fk>
+		</table>
+		<table name="cmi_interactions_objectives" storage="engine=InnoDB" >
+			<column name="ciid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="id" type="TEXT" java_type="-1" length="65535" />
+			<index name="idx_cmi_interactions_objectives" unique="UNIQUE" >
+				<column name="id" />
+			</index>
+			<index name="pk_cmi_interactions_objectives" unique="PRIMARY_KEY" >
+				<column name="ciid" />
+			</index>
+			<fk name="fk_cmi_interactions_objectives" virtual="true" to_schema="drpl_scorm" to_table="cmi_interactions" >
+				<fk_column name="ciid" pk="ciid" />
+			</fk>
+		</table>
+		<table name="cmi_learner" storage="engine=InnoDB" >
+			<column name="uid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="credit" type="VARCHAR" java_type="12" length="10" />
+			<column name="audio_level" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="language" type="VARCHAR" java_type="12" length="250" />
+			<column name="delivery_speed" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="audio_captioning" type="INT" java_type="4" length="10" />
+			<column name="mode" type="VARCHAR" java_type="12" length="10" />
+			<index name="pk_cmi_learner" unique="PRIMARY_KEY" >
+				<column name="uid" />
+			</index>
+			<fk name="fk_cmi_learner" virtual="true" to_schema="drpl_scorm" to_table="users" >
+				<fk_column name="uid" pk="uid" />
+			</fk>
+		</table>
+		<table name="cmi_learner_attempt" storage="engine=InnoDB" >
+			<column name="claid" type="int unsigned" java_type="1111" length="11" mandatory="true" >
+				<comment> <![CDATA[auto_increment]]> </comment>
+			</column>
+			<column name="csid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="uid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="completion_status" type="VARCHAR" java_type="12" length="15" />
+			<column name="location" type="TEXT" java_type="-1" length="65535" />
+			<column name="progress_measure" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="success_status" type="VARCHAR" java_type="12" length="10" />
+			<column name="suspend_data" type="TEXT" java_type="-1" length="65535" />
+			<column name="total_time" type="VARCHAR" java_type="12" length="15" mandatory="true" >
+				<defo>PT0H0M0S</defo>
+			</column>
+			<index name="pk_cmi_learner_attempt" unique="PRIMARY_KEY" >
+				<column name="claid" />
+			</index>
+			<fk name="fk_cmi_learner_attempt" virtual="true" to_schema="drpl_scorm" to_table="cmi_sco" >
+				<fk_column name="csid" pk="csid" />
+			</fk>
+			<fk name="fk_cmi_learner_attempt_001" virtual="true" to_schema="drpl_scorm" to_table="users" >
+				<fk_column name="uid" pk="uid" />
+			</fk>
+		</table>
+		<table name="cmi_learner_session" storage="engine=InnoDB" >
+			<column name="clsid" type="INT" java_type="4" length="11" mandatory="true" >
+				<comment> <![CDATA[auto_increment]]> </comment>
+			</column>
+			<column name="claid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="entry" type="VARCHAR" java_type="12" length="10" />
+			<column name="exit_" type="VARCHAR" java_type="12" length="10" />
+			<column name="session_time" type="VARCHAR" java_type="12" length="15" mandatory="true" >
+				<defo>PT0H0M0S</defo>
+			</column>
+			<column name="timestamp" type="INT" java_type="4" length="11" mandatory="true" />
+			<index name="pk_cmi_learner_session" unique="PRIMARY_KEY" >
+				<column name="clsid" />
+			</index>
+			<fk name="fk_cmi_learner_session" virtual="true" to_schema="drpl_scorm" to_table="cmi_learner_attempt" >
+				<fk_column name="claid" pk="claid" />
+			</fk>
+		</table>
+		<table name="cmi_objectives" storage="engine=InnoDB" >
+			<column name="coid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="ciid" type="INT" java_type="4" length="11" />
+			<column name="id" type="TEXT" java_type="-1" length="65535" />
+			<column name="success_status" type="VARCHAR" java_type="12" length="10" />
+			<column name="completion_status" type="VARCHAR" java_type="12" length="15" />
+			<column name="progress_measure" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="description" type="VARCHAR" java_type="12" length="250" />
+			<index name="pk_cmi_objectives" unique="PRIMARY_KEY" >
+				<column name="coid" />
+			</index>
+			<fk name="fk_cmi_objectives" virtual="true" to_schema="drpl_scorm" to_table="cmi_interactions_objectives" >
+				<fk_column name="id" pk="id" />
+			</fk>
+		</table>
+		<table name="cmi_objectives_score" storage="engine=InnoDB" >
+			<column name="coid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="scaled" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="raw" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="min" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="max" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<index name="pk_cmi_objectives_score" unique="PRIMARY_KEY" >
+				<column name="coid" />
+			</index>
+			<fk name="fk_cmi_objectives_score" virtual="true" to_schema="drpl_scorm" to_table="cmi_objectives" >
+				<fk_column name="coid" pk="coid" />
+			</fk>
+		</table>
+		<table name="cmi_sco" storage="engine=InnoDB" >
+			<column name="csid" type="INT" java_type="4" length="11" mandatory="true" >
+				<comment> <![CDATA[auto_increment]]> </comment>
+			</column>
+			<column name="nid" type="INT" java_type="4" length="11" mandatory="true" />
+			<column name="completion_threshold" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="launch_data" type="TEXT" java_type="-1" length="65535" />
+			<column name="max_time_allowed" type="VARCHAR" java_type="12" length="15" />
+			<column name="scaled_passing_score" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="time_limit_action" type="VARCHAR" java_type="12" length="20" />
+			<index name="pk_cmi_sco" unique="PRIMARY_KEY" >
+				<column name="csid" />
+			</index>
+			<fk name="fk_cmi_sco" virtual="true" to_schema="drpl_scorm" to_table="node" >
+				<fk_column name="nid" pk="nid" />
+			</fk>
+		</table>
+		<table name="cmi_score" storage="engine=InnoDB" >
+			<column name="cscid" type="INT" java_type="4" length="11" mandatory="true" >
+				<comment> <![CDATA[auto_increment]]> </comment>
+			</column>
+			<column name="claid" type="int unsigned" java_type="1111" length="11" mandatory="true" />
+			<column name="scaled" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="raw" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="max" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<column name="min" type="DOUBLE" java_type="8" length="10" decimal="7" />
+			<index name="pk_cmi_score" unique="PRIMARY_KEY" >
+				<column name="cscid" />
+			</index>
+			<fk name="fk_cmi_score" virtual="true" to_schema="drpl_scorm" to_table="cmi_learner_attempt" >
+				<fk_column name="claid" pk="claid" />
+			</fk>
+		</table>
+		<table name="comments" storage="engine=InnoDB" >
+			<column name="cid" type="INT" java_type="4" length="11" mandatory="true" >
+				<comment> <![CDATA[auto_increment]]> </comment>
+			</column>
+			<column name="pid" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="nid" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="uid" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="subject" type="VARCHAR" java_type="12" length="64" mandatory="true" />
+			<column name="comment" type="LONGTEXT" java_type="-1" mandatory="true" />
+			<column name="hostname" type="VARCHAR" java_type="12" length="128" mandatory="true" />
+			<column name="timestamp" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="score" type="MEDIUMINT" java_type="4" length="9" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="status" type="tinyint unsigned" java_type="1111" length="3" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="format" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="thread" type="VARCHAR" java_type="12" length="255" mandatory="true" />
+			<column name="users" type="LONGTEXT" java_type="-1" />
+			<column name="name" type="VARCHAR" java_type="12" length="60" />
+			<column name="mail" type="VARCHAR" java_type="12" length="64" />
+			<column name="homepage" type="VARCHAR" java_type="12" length="255" />
+			<index name="lid" unique="NORMAL" >
+				<column name="nid" />
+			</index>
+			<index name="pk_comments" unique="PRIMARY_KEY" >
+				<column name="cid" />
+			</index>
+			<fk name="fk_comments" virtual="true" to_schema="drpl_scorm" to_table="node" >
+				<fk_column name="nid" pk="nid" />
+			</fk>
+			<fk name="fk_comments_001" virtual="true" to_schema="drpl_scorm" to_table="users" >
+				<fk_column name="uid" pk="uid" />
+			</fk>
+		</table>
+		<table name="files" storage="engine=InnoDB" >
+			<column name="fid" type="int unsigned" java_type="1111" length="10" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="nid" type="int unsigned" java_type="1111" length="10" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="filename" type="VARCHAR" java_type="12" length="255" mandatory="true" />
+			<column name="filepath" type="VARCHAR" java_type="12" length="255" mandatory="true" />
+			<column name="filemime" type="VARCHAR" java_type="12" length="255" mandatory="true" />
+			<column name="filesize" type="int unsigned" java_type="1111" length="10" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<index name="nid" unique="NORMAL" >
+				<column name="nid" />
+			</index>
+			<index name="pk_files" unique="PRIMARY_KEY" >
+				<column name="fid" />
+			</index>
+		</table>
+		<table name="node" storage="engine=InnoDB" >
+			<column name="nid" type="int unsigned" java_type="1111" length="10" mandatory="true" >
+				<comment> <![CDATA[auto_increment]]> </comment>
+			</column>
+			<column name="vid" type="int unsigned" java_type="1111" length="10" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="type" type="VARCHAR" java_type="12" length="32" mandatory="true" />
+			<column name="title" type="VARCHAR" java_type="12" length="128" mandatory="true" />
+			<column name="uid" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="status" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>1</defo>
+			</column>
+			<column name="created" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="changed" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="comment" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="promote" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="moderate" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="sticky" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<index name="nid" unique="UNIQUE" >
+				<column name="nid" />
+			</index>
+			<index name="node_changed" unique="NORMAL" >
+				<column name="changed" />
+			</index>
+			<index name="node_created" unique="NORMAL" >
+				<column name="created" />
+			</index>
+			<index name="node_moderate" unique="NORMAL" >
+				<column name="moderate" />
+			</index>
+			<index name="node_promote_status" unique="NORMAL" >
+				<column name="promote" />
+				<column name="status" />
+			</index>
+			<index name="node_status_type" unique="NORMAL" >
+				<column name="status" />
+				<column name="type" />
+				<column name="nid" />
+			</index>
+			<index name="node_title_type" unique="NORMAL" >
+				<column name="title" />
+				<column name="type" />
+			</index>
+			<index name="node_type" unique="NORMAL" >
+				<column name="type" />
+			</index>
+			<index name="pk_node" unique="PRIMARY_KEY" >
+				<column name="nid" />
+				<column name="vid" />
+			</index>
+			<index name="status" unique="NORMAL" >
+				<column name="status" />
+			</index>
+			<index name="uid" unique="NORMAL" >
+				<column name="uid" />
+			</index>
+			<index name="vid" unique="UNIQUE" >
+				<column name="vid" />
+			</index>
+		</table>
+		<table name="users" storage="engine=InnoDB" >
+			<column name="uid" type="int unsigned" java_type="1111" length="10" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="name" type="VARCHAR" java_type="12" length="60" mandatory="true" />
+			<column name="pass" type="VARCHAR" java_type="12" length="32" mandatory="true" />
+			<column name="mail" type="VARCHAR" java_type="12" length="64" />
+			<column name="mode" type="TINYINT" java_type="-6" length="4" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="sort" type="TINYINT" java_type="-6" length="4" >
+				<defo>0</defo>
+			</column>
+			<column name="threshold" type="TINYINT" java_type="-6" length="4" >
+				<defo>0</defo>
+			</column>
+			<column name="theme" type="VARCHAR" java_type="12" length="255" mandatory="true" />
+			<column name="signature" type="VARCHAR" java_type="12" length="255" mandatory="true" />
+			<column name="created" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="access" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="login" type="INT" java_type="4" length="11" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="status" type="TINYINT" java_type="-6" length="4" mandatory="true" >
+				<defo>0</defo>
+			</column>
+			<column name="timezone" type="VARCHAR" java_type="12" length="8" />
+			<column name="language" type="VARCHAR" java_type="12" length="12" mandatory="true" />
+			<column name="picture" type="VARCHAR" java_type="12" length="255" mandatory="true" />
+			<column name="init" type="VARCHAR" java_type="12" length="64" />
+			<column name="data" type="LONGTEXT" java_type="-1" />
+			<index name="access" unique="NORMAL" >
+				<column name="access" />
+			</index>
+			<index name="created" unique="NORMAL" >
+				<column name="created" />
+			</index>
+			<index name="name" unique="UNIQUE" >
+				<column name="name" />
+			</index>
+			<index name="pk_users" unique="PRIMARY_KEY" >
+				<column name="uid" />
+			</index>
+		</table>
+	</schema>
+	<connector name="MySql" database="MySql" driver_class="org.gjt.mm.mysql.Driver" driver_jar="mysql-connector-java-3.0.14-production-bin.jar" host="localhost" port="3306" instance="information_schema" user="root" passwd="c2ZhdWRpdG9y" read_only="false" />
+	<layout name="Default" active="false" joined_routing="false" full_qualified_names="false" opened="0" >
+		<entity schema="drpl_scorm" name="cmi_comments_from_learner" show_types="false" x="585" y="39" />
+		<entity schema="drpl_scorm" name="cmi_interactions" show_types="false" x="234" y="234" />
+		<entity schema="drpl_scorm" name="cmi_interactions_correct_responses" show_types="false" x="117" y="442" />
+		<entity schema="drpl_scorm" name="cmi_interactions_objectives" show_types="false" x="390" y="234" />
+		<entity schema="drpl_scorm" name="cmi_learner" show_types="false" x="962" y="39" />
+		<entity schema="drpl_scorm" name="cmi_learner_attempt" show_types="false" x="39" y="39" />
+		<entity schema="drpl_scorm" name="cmi_learner_session" show_types="false" x="39" y="234" />
+		<entity schema="drpl_scorm" name="cmi_objectives" show_types="false" x="390" y="325" />
+		<entity schema="drpl_scorm" name="cmi_objectives_score" show_types="false" x="390" y="481" />
+		<entity schema="drpl_scorm" name="cmi_sco" show_types="false" x="598" y="325" />
+		<entity schema="drpl_scorm" name="cmi_score" show_types="false" x="234" y="39" />
+		<entity schema="drpl_scorm" name="comments" show_types="false" x="962" y="182" />
+		<entity schema="drpl_scorm" name="node" show_types="false" x="806" y="325" />
+		<entity schema="drpl_scorm" name="users" show_types="false" x="806" y="39" />
+	</layout>
+</project>
