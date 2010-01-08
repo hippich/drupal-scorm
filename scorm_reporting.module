@@ -14,6 +14,13 @@
  */
 
 /**
+ * Implementation of hook_views_api().
+ */
+function scorm_reporting_views_api() {
+  return array('api' => 2);
+}
+
+/**
  * Implementation of hook_menu().
  */
 function scorm_reporting_menu() {
