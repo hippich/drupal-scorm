@@ -1,4 +1,3 @@
-; $Id$
 name = SCO
 description = The SCORM - Sharable Content Object
 package = "LMS"

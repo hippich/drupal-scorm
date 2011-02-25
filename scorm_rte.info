@@ -1,4 +1,3 @@
-; $Id$
 name = SCORM RTE
 description = The SCORM RTE
 package = "LMS"

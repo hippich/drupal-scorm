@@ -1,4 +1,3 @@
-// $Id$
 
 /**
  * SCORM 2004 generic SCORM session tracking

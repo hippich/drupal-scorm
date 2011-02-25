@@ -1,4 +1,3 @@
-// $Id$
 
 /**
  * SCORM 2004 Flowplayer integration
