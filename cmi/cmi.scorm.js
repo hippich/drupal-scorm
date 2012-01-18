@@ -139,6 +139,12 @@ API_1484_11.Cmi.CacheValue = function (name, value) {
   //FIXME: eval is evil.
 
   // Save data to session
+  var val = value;
+
+  if (typeof val == "string") {
+    val = value.replace(/'/, "''");
+  }
+
   eval("session" + name + "['value'] = '" + val + "';");
   // Mark as changed
   //eval("session" + name + "['changed'] = true;");
