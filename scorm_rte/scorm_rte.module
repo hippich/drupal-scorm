@@ -1,0 +1,547 @@
+<?php
+
+/**
+ * @file
+ * SCORM 2004 Run-Time Environment (RTE)
+ *
+ * This module handels the Scorm Run Time Environment which handles the communication
+ * between the sco and the LMS.
+ *
+ * @author
+ * Stefan Auditor <stefan.auditor@erdfisch.de>
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function scorm_rte_menu() {
+  $items = array();
+  $items['node/%/scorm/%'] = array(
+    'title' => 'Scorm callback',
+    'page callback' => 'scorm_rte_callback',
+    // Argument 3 is used to identify the action given by rte.scrom.js
+    'page arguments' => array(1, 3),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+
+
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function scorm_rte_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  if (!$scorm_is_object = variable_get('scorm_is_object_' . $node->type, FALSE)) {
+    return;
+  }
+  
+  switch ($op) {
+    case 'view':
+      //TODO: Implement hook to add js needed by other SCORM modules
+      if (arg(0) == 'node' && is_numeric(arg(1))) {
+        $data = 'API_1484_11.nid = '. drupal_to_js((integer) $node->nid);
+        drupal_add_js($data, 'inline', 'header');
+        $data = 'API_1484_11.basepath = '. drupal_to_js(base_path());
+        drupal_add_js($data, 'inline', 'header');
+
+        drupal_add_js(drupal_get_path('module', 'scorm') .'/js/json2.scorm.js');
+        drupal_add_js(drupal_get_path('module', 'scorm_rte') .'/rte.scorm.js');
+        drupal_add_js(drupal_get_path('module', 'scorm') .'/js/scorm.scorm.js');
+        drupal_add_js(drupal_get_path('module', 'scorm_cmi') .'/cmi.scorm.js');
+        if (module_exists('flowplayer') || module_exists('flowplayer_simple')) {
+          drupal_add_js(drupal_get_path('module', 'scorm') .'/js/flowplayer.scorm.js');
+        }
+      }
+      break;
+  }
+}
+
+/**
+ * Menu callback
+ */
+function scorm_rte_callback($nid, $arg, $XMLHttpRequest = TRUE) {
+  global $user;
+  if (!$params['uid']) {
+    $params['uid'] = $user->uid;
+  }
+
+  //This callback should only be called via XMLHttpRequest
+  if ($XMLHttpRequest) {
+    $params['XMLHttpRequest'] = TRUE;
+  }
+
+  if ($nid) {
+    $params['nid'] = $nid;
+  }
+
+  //TODO: load session-, attempt-id
+
+  if ($arg) {
+    $params['arg'] = $arg;
+  }
+
+  if ($_GET['name']) {
+    $params['name'] = check_plain($_GET['name']);
+  }
+
+  if ($_GET['value']) {
+    $params['value'] = check_plain($_GET['value']);
+  }
+
+  if (is_numeric($_GET['error_code'])) {
+    $params['error_code'] = check_plain($_GET['error_code']);
+  }
+
+  switch ($arg) {
+    case 'initialize':
+      scorm_rte_initialize($params);
+      break;
+    case 'terminate':
+      scorm_rte_terminate($params);
+      break;
+    case 'get_value':
+      scorm_rte_get_value($params);
+      break;
+    case 'set_value':
+      scorm_rte_set_value($params);
+      break;
+    case 'commit':
+      scorm_rte_commit($params);
+      break;
+    case 'get_last_error':
+      scorm_rte_get_last_error($params);
+      break;
+    case 'get_error_string':
+      scorm_rte_get_error_string($params);
+      break;
+    case 'get_diagnostic':
+      scorm_rte_get_diagnostic($params);
+      break;
+    case 'set_error':
+      scorm_rte_set_error($params);
+      break;
+    case 'load_datamodel':
+      scorm_rte_load_datamodel($params);
+      break;
+    default:
+      drupal_not_found();
+      break;
+  }
+}
+
+/**
+ * The function is used to initiate the communication session. It allows the LMS
+ * to handle LMS specific initialization issues.
+ *
+ * @param parameter
+ *   (“”) – empty characterstring. An empty characterstring shall be passed as a
+ *   parameter.
+ * @return
+ *   Return Value: The function can return one of two values. The return value
+ *   shall be represented as a characterstring. The quotes (“”) are not part of
+ *   the characterstring returned, they are used purely to delineate the values
+ *   returned.
+ *     •  “true” – The characterstring “true” shall be returned if communication
+ *        session initialization, as determined by the LMS, was successful.
+ *     •  “false” – The characterstring “false” shall be returned if
+ *        communication session initialization, as determined by the LMS, was
+ *        unsuccessful. The API Instance shall set the error code to a value
+ *        specific to the error encountered. The SCO may call GetLastError() to
+ *        determine the type of error. More detailed information pertaining to
+ *        the error may be provided by the LMS through the GetDiagnostic()
+ *        function.
+ */
+function scorm_rte_initialize($params = array()) {
+
+  $output = array();
+  $output = module_invoke_all('scorm_rte_initialize', $params);
+
+  //TODO: return false in case any module returned false
+  // and set error
+  $output = TRUE;
+
+  if ($params['XMLHttpRequest']) {
+    drupal_set_header('Content-Type: application/x-javascript');
+    print drupal_to_js($output);
+    die();
+  }
+
+  return $output;
+}
+
+/**
+ * The function is used to terminate the communication session. It is used by
+ * the SCO when the SCO has determined that it no longer needs to communicate
+ * with the LMS.
+ *
+ * The Terminate() function also shall cause the persistence of
+ * any data (i.e., an implicit Commit(“”) call) set by the SCO since the last
+ * successful call to Initialize(“”) or Commit(“”), whichever occurred most
+ * recently. This guarantees to the SCO that all data set by the SCO has been
+ * persisted by the LMS. Once the communication session has been successfully
+ * terminated, the SCO is only permitted to call the Support Methods.
+ *
+ * @param parameter
+ *   (“”) – empty characterstring. An empty characterstring shall be passed as a
+ *   parameter.
+ * @return
+ *   Return Value: The method can return one of two values. The return value
+ *   shall be represented as a characterstring. The quotes (“”) are not part of
+ *   the characterstring returned, they are used purely to delineate the values
+ *   returned.
+ *     •  “true” – The characterstring “true” shall be returned if termination
+ *        of the communication session, as determined by the LMS, was
+ *        successful.
+ *     •  “false” – The characterstring “false” shall be returned if termination
+ *        of the communication session, as determined by the LMS, was unsuccessful. The API
+ *        Instance shall set the error code to a value specific to the error encountered. The
+ *        SCO may call GetLastError() to determine the type of error. More detailed
+ *        information pertaining to the error may be provided by the LMS through the
+ *        GetDiagnostic() function.
+ */
+function scorm_rte_terminate($params = array()) {
+
+  $output = array();
+  $output = module_invoke_all('scorm_rte_terminate', $params);
+
+  //TODO: return false in case any module returned false
+  // and set error
+  $output = TRUE;
+
+  if ($params['XMLHttpRequest']) {
+    drupal_set_header('Content-Type: application/x-javascript');
+    print drupal_to_js($output);
+    die();
+  }
+
+  return $output;
+}
+
+/**
+ * The function requests information from an LMS. It permits the SCO to
+ * request information from the LMS to determine among other things:
+ *   •   Values for data model elements supported by the LMS.
+ *   •   Version of the data model supported by the LMS.
+ *   •   Whether or not specific data model elements are supported.
+ * @param name
+ * The parameter represents the complete identification of a data model
+ * element.
+ * @return
+ *   The method can return one of two values. The return value shall be
+ *   represented as a characterstring.
+ *    •  A characterstring containing the value associated with the parameter
+ *    •  If an error occurs, then the API Instance shall set an error code to a value specific
+ *       to the error and return an empty characterstring (“”). The SCO may call
+ *       GetLastError() to determine the type of error. More detailed information
+ *       pertaining to the error may be provided by the LMS through the
+ *       GetDiagnostic() function.
+ */
+function scorm_rte_get_value($params = array()) {
+  $dmr = explode('.', $params['name']);
+
+  $func = $dmr[0] .'_dm_'. $dmr[1];
+  if (function_exists($func)) {
+    $output = $func($params);
+  }
+  else {
+    $output = '';
+    $params['error_code'] = 401;
+    scorm_rte_set_error($params);
+  }
+
+  if ($params['XMLHttpRequest']) {
+    drupal_set_header('Content-Type: application/x-javascript');
+    print drupal_to_js($output);
+    die();
+  }
+
+  return $output;
+}
+
+/**
+ * The method is used to request the transfer to the LMS of the value of
+ * parameter_2 for the data element specified as parameter_1. This method allows the
+ * SCO to send information to the LMS for storage. The API Instance may be designed to
+ * immediately persist data that was set (to the server-side component) or store data in a
+ * local (client-side) cache.
+ *
+ * @param
+ *  • name – The complete identification of a data model element to be set.
+ *  • value – The value to which the contents of parameter_1 is to be set. The
+ *    value of parameter_2 shall be a characterstring that shall be convertible to the
+ *    data type defined for the data model element identified in parameter_1.
+ * @return
+ * Return Value: The method can return one of two values. The return value shall be
+ * represented as a characterstring. The quotes (“”) are not part of the characterstring
+ * returned, they are used purely to delineate the values returned.
+ *   •  “true” – The characterstring “true” shall be returned if the LMS accepts the
+ *      content of parameter_2 to set the value of parameter_1.
+ *   •  “false” – The characterstring “false” shall be returned if the LMS encounters
+ *      an error in setting the contents of parameter_1 with the value of parameter_2.
+ *      The SCO may call GetLastError() to determine the type of error. More detailed
+ *      information pertaining to the error may be provided by the LMS through the
+ *      GetDiagnostic() function.
+ */
+function scorm_rte_set_value($params = array()) {
+  $dmr = explode('.', $params['name']);
+
+  $func = $dmr[0] .'_dm_'. $dmr[1];
+  if (function_exists($func)) {
+    $output = $func($params);
+  }
+  else {
+    $output = '';
+    $params['error_code'] = 401;
+    scorm_rte_set_error($params);
+  }
+
+  if ($params['XMLHttpRequest']) {
+    drupal_set_header('Content-Type: application/x-javascript');
+    print drupal_to_js($output);
+    die();
+  }
+
+  return $output;
+}
+
+/**
+ * The method requests forwarding to the persistent data store any data from
+ * the SCO that may have been cached by the API Instance since the last call to
+ * Initialize(“”) or Commit(“”), whichever occurred most recently. The LMS would
+ * then set the error code to 0 (No Error encountered) and return “true”.
+ * If the API Instance does not cache values, Commit(“”) shall return “true” and set the
+ * error code to 0 (No Error encountered) and do no other processing.
+ * Cached data shall not be modified because of a call to the commit data method. For
+ * example, if the SCO sets the value of a data model element, then calls the commit data
+ * method, and then subsequently gets the value of the same data model element, the value
+ * returned shall be the value set in the call prior to invoking the commit data method. The
+ * Commit(“”) method can be used as a precautionary mechanism by the SCO. The method
+ * can be used to guarantee that data set by the SetValue() is persisted to reduce the
+ * likelihood that data is lost because the communication session is interrupted, ends
+ * abnormally or otherwise terminates prematurely prior to a call to Terminate(“”).
+ *
+ * @param parameter
+ *   (“”) – empty characterstring. An empty characterstring shall be passed as a
+ *   parameter.
+ * @return
+ *   The method can return one of two values. The return value shall be
+ *   represented as a characterstring. The quotes (“”) are not part of the characterstring
+ *   returned, they are used purely to delineate the values returned.
+ *     •  “true” – The characterstring “true” shall be returned if the data was successfully
+ *         persisted to a long-term data store.
+ *     •  “false” – The characterstring “false” shall be returned if the data was
+ *        unsuccessfully persisted to a long-term data store. The API Instance shall set the
+ *        error code to a value specific to the error encountered. The SCO may call
+ *        GetLastError() to determine the type of error. More detailed information
+ *        pertaining to the error may be provided by the LMS through the
+ *        GetDiagnostic() function.
+ */
+function scorm_rte_commit($params = array()) {
+  $output = array();
+  $session = json_decode($_POST['session'], TRUE);
+
+  $output = module_invoke_all('scorm_rte_commit', $params, $session);
+
+  if ($params['XMLHttpRequest']) {
+    drupal_set_header('Content-Type: application/x-javascript');
+    print drupal_to_js($output);
+    die();
+  }
+
+  return $output;
+}
+
+/**
+ * Report an error
+ */
+function scorm_rte_set_error($params = array()) {
+  if ($params['XMLHttpRequest']) {
+    unset($params['XMLHttpRequest']);
+  }
+
+  if (isset($_GET['parameter'])) {
+    $params['error_code'] = $_GET['parameter'];
+  }
+
+  // Dont't log 0 => 'no error'
+  if ((is_numeric($params['error_code']) && $params['error_code'] > 0)) {
+    // Log error to watchdog
+    watchdog('Scorm', (isset($params['error_code']) ? $params['error_code'] : t('n.a.')) .': '. (isset($params['error_code']) ? scorm_rte_get_error_string($params) : t('Undefined error')), WATCHDOG_ERROR);
+  }
+}
+
+/**
+ * This method requests the error code for the current error state of the API
+ * Instance. If a SCO calls this method, the API Instance shall not alter the current error
+ * state, but simply return the requested information.
+ * A best practice recommendation is to check to see if a Session Method or Data-transfer
+ * Method was successful. The GetLastError() can be used to return the current error
+ * code. If an error was encountered during the processing of a function, the SCO may take
+ * appropriate steps to alleviate the problem.
+ *
+ * @param
+ *   The API method shall not accept any parameters.
+ * @return
+ *   The API Instance shall return the error code reflecting the current error
+ *   state of the API Instance. The return value shall be a characterstring (convertible to an
+ *   integer in the range from 0 to 65536 inclusive) representing the error code of the last
+ *   error encountered.
+ */
+function scorm_rte_get_last_error($params = array()) {
+  //TODO: erroring
+  $output = 'get_last_error';//DEBUG
+
+  if ($params['XMLHttpRequest']) {
+    drupal_set_header('Content-Type: application/x-javascript');
+    print drupal_to_js($output);
+    die();
+  }
+
+  return $output;
+}
+
+/**
+ * The GetErrorString() function can be used to retrieve a textual
+ * description of the current error state. The function is used by a SCO to request the textual
+ * description for the error code specified by the value of the parameter. The API Instance
+ * shall be responsible for supporting the error codes identified in Section 3.1.7: API
+ * Implementation Error Codes. This call has no effect on the current error state; it simply
+ * returns the requested information.
+ *
+ * @param errcode
+ *   Represents the characterstring of the error code (integer value)
+ *   corresponding to an error message.
+
+ * @return
+ *   The method shall return a textual message containing a description of the
+ *   error code specified by the value of the parameter. The following requirements shall be
+ *   adhered to for all return values:
+ *     •   The return value shall be a characterstring that has a maximum length of 255
+ *         characters.
+ *     •   SCORM makes no requirement on what the text of the characterstring shall
+ *         contain. The error codes themselves are explicitly and exclusively defined. The
+ *         textual description for the error code is LMS specific.
+ *     •   If the requested error code is unknown by the LMS, an empty characterstring (“”)
+ *         shall be returned. This is the only time that an empty characterstring shall be
+ *         returned.
+ *
+ * Note: We return the full array of error codes when no code is given
+ *
+ * Synchronise with scrm_rte.js
+ */
+function scorm_rte_get_error_string($params = array()) {
+  $error_code = $params['error_code'];
+
+  $error_codes = array(
+    0 => t('No error'),
+    // General Error Codes
+    101 => t('General Exception'), //TODO
+    102 => t('General Initialization Failure'),
+    103 => t('Already Initialized'),
+    104 => t('Content Instance Terminated'), //TODO
+    111 => t('General Termination Failure'), //TODO
+    112 => t('Termination Before Initialization'),
+    113 => t('Termination After Termination'),
+    122 => t('Retrieve Data Before Initialization'),
+    123 => t('Retrieve Data After Termination'),
+    132 => t('Store Data Before Initialization'),
+    133 => t('Store Data After Termination'),
+    142 => t('Commit Before Initialization'),
+    143 => t('Commit After Termination'),
+    // Syntax Error Codes
+    201 => t('General Argument Error'), //TODO
+    // RTS Error Codes
+    301 => t('General Get Failure'), //TODO
+    351 => t('General Set Failure'), //TODO
+    391 => t('General Commit Failure'), //TODO
+    // Data Model Error Codes
+    401 => t('Undefined Data Model Element'), //TODO
+    402 => t('Unimplemented Data Model Element'), //TODO
+    403 => t('Data Model Element Value Not Initialized'), //TODO
+    404 => t('Data Model Element Is Read Only'), //TODO
+    405 => t('Data Model Element Is Write Only'), //TODO
+    406 => t('Data Model Element Type Mismatch'), //TODO
+    407 => t('Data Model Element Value Out Of Range'), //TODO
+    408 => t('Data Model Dependency Not Established'), //TODO
+    // Implementation-defined Errors
+    1000  => t('General communication failure (Ajax)'),
+    // '65535 => t(''),
+  );
+
+  //Return all error codes if error_code not defined
+  $output = $error_codes[$error_code] ? $error_codes[$error_code] : $error_codes;
+  if ($params['XMLHttpRequest']) {
+    drupal_set_header('Content-Type: application/x-javascript');
+    print drupal_to_js($output);
+    die();
+  }
+
+  return $output;
+}
+
+/**
+ * The GetDiagnostic() function exists for LMS specific use. It allows the LMS
+ * to define additional diagnostic information through the API Instance. This
+ * call has no effect on the current error state; it simply returns the
+ * requested information.
+ *
+ * @param
+ *   An implementer–specific value for diagnostics. The maximum
+ *   length of the parameter value shall be 255 characters. The value of the
+ *   parameter may be an error code, but is not limited to just error codes.
+ * @return
+ *   The API Instance shall return a characterstring representing the
+ *   diagnostic information. The maximum length of the characterstring returned
+ *   shall be 255 characters. If the parameter is unknown by the LMS, an empty
+ *   characterstring (“”) shall be returned.
+ *   If the parameter passed into the GetDiagnostic() function is an empty
+ *   characterstring (“”), then it is recommended that the function return a
+ *   characterstring representing diagnostic information about the last error
+ *   encountered.
+ */
+function scorm_rte_get_diagnostic($params = array()) {
+  $error_strings  = scorm_rte_get_error_string();
+  $error_code     = $params['error_code'];
+
+  // Return error description in case an error code is given
+  if ($error_code AND in_array($error_code, $error_strings) AND $error_code != '') {
+    $output = t('!error_code: !error_string', array('!error_code' => $error_code, '!error_string' => $error_strings[$error_code]));
+  }
+  // Return error description of latest error in case empty characterstring is
+  // given
+  elseif ($error_code === '') {
+    $last_error = scorm_rte_get_last_error($params);
+    $output = t('!error_code: !error_string', array('!error_code' => $last_error, '!error_string' => $error_strings[$last_error]));
+  }
+  // Unknown - return empty string
+  else {
+    $output = '';
+  }
+
+  if ($params['XMLHttpRequest']) {
+    drupal_set_header('Content-Type: application/x-javascript');
+    print drupal_to_js($output);
+    die();
+  }
+
+  return $output;
+}
+
+/**
+ * Load data associated with a SCO and a User
+ */
+function scorm_rte_load_datamodel($params = array()) {
+  $output = array();
+  $output = module_invoke_all('scorm_rte_load_datamodel', $params);
+
+  if ($params['XMLHttpRequest']) {
+    drupal_set_header('Content-Type: application/x-javascript');
+    print drupal_to_js($output);
+    die();
+  }
+
+  return $output;
+}
