@@ -19,17 +19,19 @@ define("SCORM_SCO_DIRECTORY", 'scorm');
  * Implementation of hook_nodeapi().
  */
 function sco_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  variable_set('scorm_is_object_story', TRUE);
+
   if (!$scorm_is_object = variable_get('scorm_is_object_story', FALSE)) {
     return;
   }
-  
+
   switch ($op) {
     case 'load':
       //TODO: check if imsmanifest exists and if, add set $node->scorm['imsmanifest'] = TRUE.
-      $node->scorm['type'] = 'audio';
+      //$node->scorm['type'] = 'audio';
       $node->scorm['type'] = 'imsmanifest';
-      $node->scorm['type'] = 'html';
-      $node->scorm['type'] = 'video';
+      //$node->scorm['type'] = 'html';
+      //$node->scorm['type'] = 'video';
       break;
     case 'view':
       $view_mode = variable_get('scorm_view_mode', 2);
@@ -46,17 +48,17 @@ function sco_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
             break;
           case 'audio':
             if (module_exists('flowplayer_simple') || module_exists('flowplayer')) {
-              drupal_add_js(drupal_get_path('module', 'scorm_sco') . '/sco.scorm.js');
+              drupal_add_js(drupal_get_path('module', 'sco') . '/sco.scorm.js');
             }
             break;
           case 'video':
             if (module_exists('flowplayer_simple') || module_exists('flowplayer')) {
-              drupal_add_js(drupal_get_path('module', 'scorm_sco') . '/sco.scorm.js');
+              drupal_add_js(drupal_get_path('module', 'sco') . '/sco.scorm.js');
             }
             break;
           case 'html':
           default:
-            drupal_add_js(drupal_get_path('module', 'scorm_sco') . '/sco.scorm.js');
+            drupal_add_js(drupal_get_path('module', 'sco') . '/sco.scorm.js');
             break;
         }
 
@@ -145,7 +147,7 @@ function sco_parse_imsmanifest($file) {
 
     $xml = new SimpleXMLElement($contents);
     $xml->registerXPathNamespace('imscp', 'http://www.imsglobal.org/xsd/imscp_v1p1');
-    //drupal_set_message('<pre>data:'. print_r(($xml), 1) .'</pre>');
+    drupal_set_message('<pre>data:'. print_r(($xml), 1) .'</pre>');
 
     $xpath = "//imscp:organizations/@default";
     $default = $xml->xpath($xpath);
@@ -198,11 +200,12 @@ function sco_parse_imsmanifest($file) {
 }
 
 function theme_sco($node) {
-  drupal_add_css(drupal_get_path('module', 'scorm_sco') . '/sco.css');
+  drupal_add_css(drupal_get_path('module', 'sco') . '/sco.css');
   drupal_add_js(drupal_get_path('module', 'scorm') . '/js/discovery.scorm.js');
-  //$output = '<div id="API_1484_11">';
-  //$output .= '<iframe id="API_1484_11_iframe" name="scorm" src="'. base_path() . drupal_get_path('module', 'scorm_rte') .'/docs/proddingsco/proddingsco.htm"></iframe>';
-  //$output .= '</div>';
+  $output = '<div id="API_1484_11">';
+  //$output .= '<iframe id="API_1484_11_iframe" name="scorm" src="'. base_path() . drupal_get_path('module', 'scorm') .'/docs/proddingsco/proddingsco.htm"></iframe>';
+  $output .= '<iframe id="API_1484_11_iframe" name="scorm" src="/sites/default/files/scorm/8/shared/launchpage.html"></iframe>';
+  $output .= '</div>';
   return $output;
 }
 

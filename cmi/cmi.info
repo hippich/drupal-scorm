@@ -1,0 +1,4 @@
+name = CMI
+description = The SCORM CMI Datamodel.
+package = "LMS"
+core = 6.x
